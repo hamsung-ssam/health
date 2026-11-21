@@ -1,0 +1,1434 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>보듬이 – 보건실 건강사정 도우미</title>
+<style>
+:root{
+  --bg:#F5F3EE; --card:#FFFFFF; --ink:#1B2426; --muted:#45524F; --line:#D8D2C6; --soft:#EEEAE2;
+  --pri:#0C6560; --pri-dark:#084B47; --pri-soft:#E1F0EE;
+  --red:#B42318; --red-soft:#FDECEA; --amber:#8A4300; --amber-soft:#FFF1DC;
+  --green:#0F6236; --green-soft:#E5F4EA; --purple:#563AA6; --purple-soft:#EEE8FB;
+  --focus:#1D4ED8; --radius:16px; --shadow:0 1px 2px rgba(0,0,0,.06),0 4px 14px rgba(0,0,0,.05);
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR","Noto Sans CJK KR","Noto Sans SC","Microsoft YaHei","Segoe UI",Roboto,sans-serif;font-size:19px;line-height:1.6;word-break:keep-all;overflow-wrap:anywhere}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--focus);outline-offset:3px}
+h1,h2,h3{line-height:1.3;margin:0 0 .5em}
+p{margin:0 0 .6em}
+ul{margin:.2em 0 .6em;padding-left:1.3em}
+li{margin:.15em 0}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* top bar */
+.topbar{position:sticky;top:0;z-index:20;background:var(--pri-dark);color:#fff;box-shadow:0 2px 8px rgba(0,0,0,.15)}
+.topbar .in{max-width:1240px;margin:0 auto;display:flex;align-items:center;gap:12px;padding:10px 20px;min-height:64px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:24px;letter-spacing:-.5px}
+.brand svg{flex:none}
+.mode{font-size:16px;font-weight:700;background:rgba(255,255,255,.16);padding:4px 12px;border-radius:999px}
+.topbar .sp{flex:1}
+.topbar .btn{min-height:48px;background:#fff;color:var(--pri-dark);border-color:#fff}
+.topbar .btn.lock{background:transparent;color:#fff;border-color:rgba(255,255,255,.7)}
+
+.wrap{max-width:1240px;margin:0 auto;padding:22px 20px 60px}
+.narrow{max-width:980px;margin:0 auto}
+.banner{max-width:1240px;margin:12px auto 0;padding:0 20px}
+.banner div{background:var(--amber-soft);border:2px solid #E7B26A;color:#5A2C00;border-radius:12px;padding:10px 16px;font-weight:600}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:52px;padding:8px 22px;border-radius:14px;border:2px solid var(--line);background:#fff;font-weight:700;cursor:pointer;text-align:center;line-height:1.3;touch-action:manipulation;user-select:none;-webkit-user-select:none}
+.btn:hover{border-color:var(--pri)}
+.btn:active{transform:translateY(1px)}
+.btn[disabled]{opacity:.45;cursor:not-allowed;transform:none}
+.btn.pri{background:var(--pri);border-color:var(--pri);color:#fff}
+.btn.pri:hover{background:var(--pri-dark)}
+.btn.red{background:var(--red);border-color:var(--red);color:#fff}
+.btn.ghost{background:transparent}
+.btn.big{min-height:64px;font-size:22px;padding:10px 28px}
+.btn.sm{min-height:48px;font-size:17px;padding:6px 14px}
+.row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.row.end{justify-content:flex-end}
+.row.between{justify-content:space-between}
+
+/* cards */
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:22px;box-shadow:var(--shadow);margin-bottom:18px}
+.card h2{font-size:23px}
+.card h3{font-size:20px}
+.muted{color:var(--muted)}
+.small{font-size:16px}
+.src{font-size:15px;color:var(--muted);border-top:1px dashed var(--line);margin-top:12px;padding-top:8px}
+.tag{display:inline-block;font-size:15px;font-weight:700;padding:2px 10px;border-radius:999px;background:var(--soft);margin:2px 4px 2px 0}
+.tag.red{background:var(--red-soft);color:var(--red)}
+.tag.amber{background:var(--amber-soft);color:var(--amber)}
+.tag.green{background:var(--green-soft);color:var(--green)}
+.tag.purple{background:var(--purple-soft);color:var(--purple)}
+
+/* home */
+.hero{text-align:center;padding:18px 0 8px}
+.hero h1{font-size:clamp(30px,4vw,42px);margin-bottom:6px}
+.howto{background:#fff;border:2px solid var(--pri);border-radius:var(--radius);padding:16px 20px;max-width:760px;margin:12px auto 26px;text-align:left;font-size:20px}
+.howto b{color:var(--pri-dark)}
+.homegrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px;max-width:1000px;margin:0 auto}
+.homebtn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;min-height:200px;border-radius:22px;border:3px solid var(--line);background:#fff;cursor:pointer;padding:20px;font-weight:800;font-size:26px;box-shadow:var(--shadow);touch-action:manipulation}
+.homebtn .ic{font-size:60px;line-height:1}
+.homebtn .sub{font-size:17px;font-weight:600;color:var(--muted)}
+.homebtn.stu{border-color:var(--pri);background:var(--pri-soft)}
+.homebtn:hover{border-color:var(--pri-dark)}
+.notice{max-width:1000px;margin:22px auto 0;font-size:16px;color:var(--muted);text-align:center}
+
+/* student */
+.stu{max-width:1000px;margin:0 auto}
+.progress{display:flex;gap:6px;margin:4px 0 14px}
+.progress span{flex:1;height:10px;border-radius:99px;background:var(--soft)}
+.progress span.on{background:var(--pri)}
+.qhead{display:flex;gap:14px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom:16px}
+.q{font-size:clamp(26px,3.4vw,34px);font-weight:800;margin:0;line-height:1.3}
+.listen{min-height:56px;font-size:20px;background:#FFF8E6;border-color:#E3B341}
+.novoice{background:#FFF8E6;border:2px dashed #E3B341;border-radius:12px;padding:8px 14px;font-weight:600;margin-bottom:12px}
+.choices{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:14px}
+.choices.two{grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+.choice{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;min-height:136px;padding:16px 12px;border-radius:20px;border:3px solid var(--line);background:#fff;cursor:pointer;font-weight:700;font-size:21px;text-align:center;line-height:1.3;touch-action:manipulation}
+.choice .em{font-size:52px;line-height:1}
+.choice[aria-pressed="true"]{border-color:var(--pri);background:var(--pri-soft);box-shadow:0 0 0 3px rgba(12,101,96,.18)}
+.choice[aria-pressed="true"]::after{content:"✓";position:absolute;top:8px;right:10px;width:34px;height:34px;border-radius:50%;background:var(--pri);color:#fff;display:flex;align-items:center;justify-content:center;font-size:20px}
+.choice.danger{border-color:#E9A39C}
+.choice.danger[aria-pressed="true"]{border-color:var(--red);background:var(--red-soft)}
+.choice.danger[aria-pressed="true"]::after{background:var(--red)}
+.choice.none{border-style:dashed}
+.navbar{display:flex;gap:14px;justify-content:space-between;margin-top:22px;flex-wrap:wrap}
+.navbar .btn{min-width:150px;min-height:64px;font-size:22px}
+.hint{color:var(--red);font-weight:700;margin-top:10px;min-height:1.6em}
+.langgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}
+.langbtn{min-height:120px;font-size:30px;font-weight:800;border-radius:20px;border:3px solid var(--line);background:#fff;cursor:pointer}
+.langbtn:hover{border-color:var(--pri)}
+.langtitle{text-align:center;font-size:22px;font-weight:700;color:var(--muted);margin-bottom:14px;line-height:1.5}
+
+.bodywrap{display:grid;grid-template-columns:minmax(240px,360px) 1fr;gap:20px;align-items:start}
+.bodybox{background:#fff;border:2px solid var(--line);border-radius:20px;padding:12px}
+.bodybox svg{width:100%;height:auto;max-height:62vh;display:block;margin:0 auto}
+.viewtoggle{display:flex;gap:10px;margin-bottom:10px}
+.viewtoggle .btn{flex:1}
+.viewtoggle .btn[aria-pressed="true"]{background:var(--pri);color:#fff;border-color:var(--pri)}
+.part{cursor:pointer}
+.part .shp{stroke-width:2;transition:fill .12s}
+.part .shp.skin{fill:#F7D7BE;stroke:#B98767}
+.part .shp.shirt{fill:#9CCBEA;stroke:#5E7590}
+.part .shp.pants{fill:#5B6F9A;stroke:#3D4C6E}
+.part .shp.shoe{fill:#3E4C63;stroke:#263142}
+.part:hover .shp{filter:brightness(1.07)}
+.part.sel .shp{fill:#FF8F6B;stroke:#A9341A;stroke-width:3;filter:none}
+.part:focus{outline:none}
+.part:focus-visible .shp{stroke:var(--focus);stroke-width:5}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
+.chip{display:inline-flex;align-items:center;min-height:44px;padding:4px 14px;border-radius:999px;background:var(--pri-soft);border:2px solid var(--pri);font-weight:700}
+.chip.x{cursor:pointer}
+.facegrid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
+.facegrid .choice{min-height:170px;font-size:19px}
+.facegrid svg{width:76px;height:76px}
+
+.stopbox{background:var(--red-soft);border:4px solid var(--red);border-radius:24px;padding:28px;text-align:center;animation:pulse 1.6s ease-in-out infinite}
+.stopbox h1{color:var(--red);font-size:clamp(32px,5vw,48px)}
+.stopbox p{font-size:24px;font-weight:700}
+/* 배 9구역 확대판 */
+.bellybox{margin-top:16px;background:#fff;border:2px solid var(--line);border-radius:20px;padding:14px}
+.bellyside{display:flex;justify-content:space-between;font-weight:800;color:var(--muted);padding:0 8px 4px}
+.bellygrid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;background:#E9D3BE;border:3px solid #7E604A;border-radius:34px;padding:8px;max-width:330px;margin:0 auto}
+.bcell{min-height:76px;border:2px solid #C9AD94;background:#F3E1CF;border-radius:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;touch-action:manipulation}
+.bcell:hover{background:#FBEBDD}
+.bcell[aria-pressed="true"]{background:#FF8F6B;border-color:#A9341A;box-shadow:inset 0 0 0 2px #A9341A}
+.bcell[aria-pressed="true"]::after{content:"✓";color:#fff;font-weight:800;font-size:24px}
+.navel{width:12px;height:12px;border-radius:50%;background:#7E604A}
+.bcell[aria-pressed="true"] .navel{display:none}
+.part .shp.cell{stroke:#7FA6C6;stroke-width:1.2}
+.part.sel .shp.cell{stroke:#A9341A;stroke-width:2}
+/* 증상 줄 배열 */
+.gch{font-size:22px;margin:0 0 10px;color:var(--pri-dark)}
+.gcgrid{display:grid;grid-template-columns:repeat(10,1fr);gap:10px}
+.gcgrid.g6{grid-template-columns:repeat(6,1fr)}
+.gcb{min-height:72px;font-size:22px;padding:8px 4px}
+.gcb[aria-pressed="true"]{background:var(--pri);border-color:var(--pri-dark);color:#fff}
+.gcb[aria-pressed="true"]::after{width:26px;height:26px;font-size:15px;top:-9px;right:-9px;background:var(--pri-dark);border:2px solid #fff}
+.choices.four{grid-template-columns:repeat(4,1fr)}
+.foldhead{cursor:pointer;user-select:none;-webkit-user-select:none;min-height:48px;flex-wrap:wrap;border-radius:12px;margin:-6px -8px 10px;padding:6px 8px}
+.foldhead:hover{background:var(--soft)}
+.foldhead.forced{cursor:default}.foldhead.forced:hover{background:none}
+.foldhead .chev{margin-left:auto;font-size:16px;font-weight:800;color:var(--pri-dark);background:var(--pri-soft);border-radius:999px;padding:4px 12px;white-space:nowrap}
+.foldhead .fpin{margin-left:auto;font-size:14px;font-weight:700;color:var(--muted)}
+.fbadge{font-size:15px;font-weight:700;background:var(--soft);border-radius:999px;padding:2px 12px;color:var(--ink)}
+.card.folded{padding-top:14px;padding-bottom:14px}
+.card.folded>.foldhead{margin-bottom:-6px}
+.card.folded>:not(.foldhead){display:none !important}
+.symrows{display:grid;gap:14px}
+.symrow{display:grid;gap:14px}
+.symrow.n3{grid-template-columns:repeat(3,1fr)}
+.symrow.n4{grid-template-columns:repeat(4,1fr)}
+/* 통증 척도 */
+.facegrid.six{grid-template-columns:repeat(6,1fr)}
+.painbtn{padding-top:46px}
+.pscore{position:absolute;top:8px;left:50%;transform:translateX(-50%);min-width:44px;padding:0 10px;border-radius:999px;color:#fff;font-weight:800;font-size:20px;line-height:30px;text-shadow:0 1px 1px rgba(0,0,0,.35)}
+.painbtn[aria-pressed="true"]::after{top:6px;right:6px}
+.gaugewrap{margin-top:18px;background:#fff;border:2px solid var(--line);border-radius:16px;padding:12px 14px}
+.gauge{display:grid;grid-template-columns:repeat(11,1fr);gap:3px;margin-top:6px}
+.gauge span{height:12px;border-radius:4px}
+.gauge.big span{height:40px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:17px;text-shadow:0 1px 1px rgba(0,0,0,.35)}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(180,35,24,.35)}50%{box-shadow:0 0 0 14px rgba(180,35,24,0)}}
+@media (prefers-reduced-motion:reduce){.stopbox{animation:none}}
+.donebox{background:var(--green-soft);border:3px solid var(--green);border-radius:24px;padding:30px;text-align:center}
+.donebox h1{color:var(--green);font-size:clamp(28px,4vw,40px)}
+.adultnote{margin-top:16px;font-size:17px;color:var(--muted);font-weight:600}
+
+/* teacher */
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px;border-bottom:2px solid var(--line)}
+.tab{min-height:52px;padding:8px 20px;border:none;background:none;font-weight:800;font-size:19px;cursor:pointer;border-bottom:4px solid transparent;margin-bottom:-2px;color:var(--muted)}
+.tab[aria-selected="true"]{color:var(--pri-dark);border-bottom-color:var(--pri)}
+.pending{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+.pending .btn[aria-pressed="true"]{background:var(--pri);color:#fff;border-color:var(--pri)}
+.tgrid{display:block}
+@media (min-width:768px){.toprow{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px;align-items:start}}
+@media (min-width:1024px){
+  .tgrid{display:grid;grid-template-columns:380px 1fr;gap:22px;align-items:start}
+  .aside{position:sticky;top:84px;max-height:calc(100vh - 100px);overflow:auto;padding-right:4px}
+}
+.sumtbl{width:100%;border-collapse:collapse;font-size:17px}
+.sumtbl th{text-align:left;white-space:nowrap;color:var(--muted);font-weight:700;padding:6px 10px 6px 0;vertical-align:top;width:6.5em}
+.sumtbl td{padding:6px 0;border-bottom:1px solid var(--soft)}
+.alert{border-radius:14px;padding:12px 16px;margin:10px 0;font-weight:600;border:2px solid}
+.alert.red{background:var(--red-soft);border-color:var(--red);color:#7A150D}
+.alert.amber{background:var(--amber-soft);border-color:#E7A55A;color:#5A2C00}
+.alert.info{background:#EEF4FF;border-color:#9BB6EA;color:#183B7A}
+.alert.purple{background:var(--purple-soft);border-color:var(--purple);color:#2E1B66}
+.alert.green{background:var(--green-soft);border-color:var(--green);color:#0B4426}
+.sec{display:flex;align-items:center;gap:10px}
+.sec .num{flex:none;width:38px;height:38px;border-radius:50%;background:var(--pri);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800}
+.chk{display:flex;gap:12px;align-items:flex-start;min-height:48px;padding:8px 10px;border-radius:12px;cursor:pointer}
+.chk:hover{background:var(--soft)}
+.chk input{width:26px;height:26px;flex:none;margin-top:3px;accent-color:var(--pri)}
+.tier{border-left:6px solid;padding:6px 0 6px 12px;margin:10px 0;border-radius:4px}
+.tier.E{border-color:var(--red)}
+.tier.U{border-color:#D9822B}
+.tier.N{border-color:var(--green)}
+.tier .tl{font-weight:800;font-size:17px}
+.tier.E .tl{color:var(--red)} .tier.U .tl{color:var(--amber)} .tier.N .tl{color:var(--green)}
+.sevgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:10px}
+.sev{min-height:96px;border-radius:16px;border:3px solid var(--line);background:#fff;cursor:pointer;padding:12px;text-align:left}
+.sev b{display:block;font-size:21px}
+.sev span{font-size:16px;color:var(--muted)}
+.sev.s1[aria-pressed="true"]{border-color:var(--red);background:var(--red-soft)}
+.sev.s2[aria-pressed="true"]{border-color:#D9822B;background:var(--amber-soft)}
+.sev.s3[aria-pressed="true"]{border-color:var(--green);background:var(--green-soft)}
+.rec{border-radius:14px;padding:14px 16px;border:2px dashed var(--line);background:#FBFAF7}
+.carelist{counter-reset:c;list-style:none;padding:0}
+.carelist li{counter-increment:c;position:relative;padding:6px 0 6px 40px}
+.carelist li::before{content:counter(c);position:absolute;left:0;top:6px;width:28px;height:28px;border-radius:50%;background:var(--pri-soft);color:var(--pri-dark);font-weight:800;display:flex;align-items:center;justify-content:center;font-size:16px}
+details{border:1px solid var(--line);border-radius:12px;padding:6px 14px;margin:10px 0;background:#FBFAF7}
+summary{cursor:pointer;font-weight:700;min-height:44px;display:flex;align-items:center}
+.letter{display:grid;grid-template-columns:1fr;gap:16px}
+@media (min-width:900px){.letter.two{grid-template-columns:1fr 1fr}}
+.lpage{border:1px solid var(--line);border-radius:12px;padding:18px;background:#fff;font-size:17px}
+.lpage h3{font-size:20px;text-align:center;border-bottom:2px solid var(--ink);padding-bottom:8px}
+.lpage h4{font-size:17px;margin:12px 0 4px;color:var(--pri-dark)}
+.lpage .em{border:2px solid var(--red);border-radius:8px;padding:6px 10px;font-weight:700;color:#7A150D;margin-top:10px}
+.lock{background:var(--purple-soft);border:2px solid var(--purple);border-radius:16px;padding:16px}
+.field{display:flex;flex-direction:column;gap:4px;min-width:120px}
+.field label{font-weight:700;font-size:17px}
+.field input,.field select,.field textarea{min-height:52px;border:2px solid var(--line);border-radius:12px;padding:8px 12px;background:#fff;font-size:19px}
+.field textarea{min-height:120px;resize:vertical}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--pri);outline:none;box-shadow:0 0 0 3px rgba(12,101,96,.2)}
+.bars{display:grid;gap:6px}
+.bar{display:grid;grid-template-columns:8em 1fr 3em;gap:10px;align-items:center;font-size:17px}
+.bar .tr{height:22px;background:var(--soft);border-radius:6px;overflow:hidden}
+.bar .fl{height:100%;background:var(--pri);border-radius:6px}
+.statgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px}
+.tbl{width:100%;border-collapse:collapse;font-size:16px}
+.tbl th,.tbl td{border-bottom:1px solid var(--line);padding:8px 6px;text-align:left;vertical-align:top}
+.tbl th{background:var(--soft);font-weight:700}
+.tblwrap{overflow-x:auto}
+.kpi{font-size:34px;font-weight:800;color:var(--pri-dark)}
+
+/* modal & toast */
+.modalbg{position:fixed;inset:0;background:rgba(10,20,20,.55);z-index:50;display:flex;align-items:center;justify-content:center;padding:16px}
+.modal{background:#fff;border-radius:20px;max-width:560px;width:100%;max-height:90vh;overflow:auto;padding:24px;box-shadow:0 10px 40px rgba(0,0,0,.3)}
+.modal h2{font-size:24px}
+.pinin{font-size:34px !important;letter-spacing:12px;text-align:center}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#1B2426;color:#fff;padding:12px 20px;border-radius:12px;font-weight:700;z-index:60;max-width:92vw;box-shadow:0 6px 20px rgba(0,0,0,.25)}
+#printArea{display:none}
+
+@media (min-width:641px) and (max-width:900px){.gcgrid{grid-template-columns:repeat(5,1fr)}.facegrid.six{grid-template-columns:repeat(3,1fr)}}
+@media (max-width:640px){
+  body{font-size:18px}
+  .wrap{padding:16px 12px 50px}
+  .card{padding:16px}
+  .topbar .in{padding:8px 12px}
+  .brand{font-size:21px}
+  .choices{grid-template-columns:repeat(2,1fr);gap:10px}
+  .choice{min-height:124px;font-size:19px;padding:12px 8px}
+  .choice .em{font-size:44px}
+  .bodywrap{grid-template-columns:1fr}
+  .bodybox svg{max-height:none}
+  .facegrid,.facegrid.six{grid-template-columns:repeat(3,1fr)}
+  .choices.four{grid-template-columns:repeat(2,1fr)}
+  .gcgrid{grid-template-columns:repeat(5,1fr);gap:8px}
+  .gcgrid.g6{grid-template-columns:repeat(3,1fr)}
+  .gcb{min-height:60px;font-size:18px}
+  .gauge.big span{height:32px;font-size:14px}
+  .symrows,.symrow{gap:8px}
+  .symrow .choice{min-height:118px;font-size:16px;padding:10px 4px;border-radius:16px}
+  .symrow .choice .em{font-size:38px}
+  .symrow.n4 .choice{font-size:14.5px;padding:10px 2px}
+  .symrow.n4 .choice .em{font-size:32px}
+  .symrow .choice[aria-pressed="true"]::after{width:26px;height:26px;font-size:15px;top:5px;right:5px}
+  .facegrid svg{width:62px;height:62px}
+  .navbar .btn{flex:1;min-width:0}
+  .homebtn{min-height:150px}
+  .bar{grid-template-columns:6em 1fr 2.5em}
+}
+@media print{
+  body{background:#fff;font-size:12pt}
+  body>*:not(#printArea){display:none !important}
+  #printArea{display:block !important}
+  #printArea .letter{display:grid;grid-template-columns:1fr 1fr;gap:10mm}
+  #printArea .letter.one{grid-template-columns:1fr}
+  #printArea .lpage{border:none;padding:0;font-size:11pt}
+  #printArea .lpage h3{font-size:14pt}
+  #printArea .lpage h4{font-size:11.5pt}
+}
+</style>
+</head>
+<body>
+<header class="topbar"><div class="in" id="topbar"></div></header>
+<div class="banner" id="storeBanner" hidden><div>⚠️ 이 기기(브라우저)에서는 저장이 되지 않아요. 창을 닫거나 새로고침하면 기록이 사라집니다. 기록이 필요하면 CSV로 먼저 내려받으세요.</div></div>
+<main class="wrap" id="app" tabindex="-1"></main>
+<div id="modalRoot"></div>
+<div id="toastRoot" aria-live="polite" role="status"></div>
+<div id="printArea"></div>
+
+<script>
+'use strict';
+/* =========================================================
+   보듬이 v1.0 — 오프라인 단일 HTML (외부 라이브러리·서버 없음)
+   자료 대조일: 2026-11-20
+   ========================================================= */
+var CHECK_DATE = '2026-11-20';
+var SRC_G = '학교 응급상황 대응 가이드라인(교육부, 2025)';
+var SRC_M = '경기 학교보건 실무 매뉴얼(경기도교육청, 2022)';
+var SRC_I = '학생 감염병 대응 가이드북(교육부)';
+
+function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+function $(s,r){return (r||document).querySelector(s);}
+function pad(n){return (n<10?'0':'')+n;}
+function fmtDate(ts){var d=new Date(ts);return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());}
+function fmtTime(ts){var d=new Date(ts);return pad(d.getHours())+':'+pad(d.getMinutes());}
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,7);}
+
+/* ---------- 안전한 저장소 (localStorage 불가 시 메모리) ---------- */
+var store=(function(){
+  var ok=false, mem={}, P='bodeumi.';
+  try{var k=P+'__t';window.localStorage.setItem(k,'1');window.localStorage.removeItem(k);ok=true;}catch(e){ok=false;}
+  return {
+    ok:ok,
+    get:function(k,d){var v;try{v=ok?window.localStorage.getItem(P+k):mem[k];}catch(e){v=mem[k];}
+      if(v==null)return d;try{return JSON.parse(v);}catch(e){return d;}},
+    set:function(k,val){var s=JSON.stringify(val);mem[k]=s;if(!ok)return true;
+      try{window.localStorage.setItem(P+k,s);return true;}catch(e){toast('저장 공간이 부족해요. 오래된 기록을 CSV로 내려받은 뒤 지워 주세요.');return false;}},
+    del:function(k){delete mem[k];if(ok){try{window.localStorage.removeItem(P+k);}catch(e){}}}
+  };
+})();
+
+/* ---------- 언어 ---------- */
+var LANGS=[
+  {code:'ko',name:'한국어',tts:'ko-KR',kname:'한국어'},
+  {code:'zh',name:'中文',tts:'zh-CN',kname:'중국어'},
+  {code:'vi',name:'Tiếng Việt',tts:'vi-VN',kname:'베트남어'},
+  {code:'en',name:'English',tts:'en-US',kname:'영어'}
+];
+function langInfo(c){for(var i=0;i<LANGS.length;i++)if(LANGS[i].code===c)return LANGS[i];return LANGS[0];}
+
+var T={
+ ko:{chooseLang:'말을 골라요',listen:'🔊 듣기',next:'다음',back:'이전',pickOne:'하나 이상 골라요',pickOneSingle:'하나를 골라요',
+  qEmerg:'지금 이런 일이 있나요?',eNone:'아니요, 없어요',stopT:'선생님을 바로 불러요!',stopB:'움직이지 말고 그 자리에 있어요. 선생님이 곧 도와줄 거예요.',
+  qBody:'어디가 아파요? 그림을 눌러요.',front:'앞모습',rear:'뒷모습',unsure:'잘 모르겠어요',chosen:'고른 곳',
+  qSym:'어떻게 아파요? 모두 골라요.',qStype:'배가 어떻게 아파요? 모두 골라요.',qPain:'얼마나 아파요?',qWhen:'언제부터 아팠어요?',qGc:'몇 학년 몇 반이에요?',gcG:'학년',gcC:'반',qHosp:'이번에 아파서 병원에 다녀왔어요?',qMed:'요즘 먹고 있는 약이 있어요? 모두 골라요.',qCause:'어떻게 아프게 됐어요?',qMind:'지금 마음은 어때요?',
+  doneT:'잘했어요! 선생님께 태블릿을 드려요.',doneB:'선생님이 곧 도와줄 거예요.',noVoice:'🔇 이 기기는 소리가 안 나요. 그림과 글자를 봐 주세요.',stepOf:'단계'},
+ zh:{chooseLang:'请选择语言',listen:'🔊 听',next:'下一步',back:'上一步',pickOne:'请至少选一个',pickOneSingle:'请选一个',
+  qEmerg:'你现在有这些情况吗？',eNone:'没有',stopT:'马上叫老师！',stopB:'不要动，待在原地。老师马上来帮你。',
+  qBody:'哪里痛？请点图片。',front:'正面',rear:'背面',unsure:'我不知道',chosen:'已选',
+  qSym:'哪里不舒服？可以选多个。',qStype:'肚子怎么痛？可以选多个。',qPain:'有多痛？',qWhen:'什么时候开始痛的？',qGc:'你是几年级几班？',gcG:'年级',gcC:'班',qHosp:'这次因为不舒服去过医院吗？',qMed:'你最近在吃药吗？可以选多个。',qCause:'是怎么弄的？',qMind:'你现在心情怎么样？',
+  doneT:'做得好！请把平板交给老师。',doneB:'老师马上会帮助你。',noVoice:'🔇 这台设备不能播放声音。请看图片和文字。',stepOf:'步骤'},
+ vi:{chooseLang:'Chọn ngôn ngữ',listen:'🔊 Nghe',next:'Tiếp theo',back:'Quay lại',pickOne:'Hãy chọn ít nhất một mục',pickOneSingle:'Hãy chọn một mục',
+  qEmerg:'Bây giờ em có bị như thế này không?',eNone:'Không có',stopT:'Gọi thầy cô ngay!',stopB:'Đừng di chuyển, hãy ở yên tại chỗ. Thầy cô sẽ đến giúp em ngay.',
+  qBody:'Em đau ở đâu? Hãy chạm vào hình.',front:'Phía trước',rear:'Phía sau',unsure:'Em không biết',chosen:'Đã chọn',
+  qSym:'Em thấy thế nào? Chọn tất cả.',qStype:'Bụng em đau như thế nào? Chọn tất cả.',qPain:'Em đau đến mức nào?',qWhen:'Em bắt đầu đau từ khi nào?',qGc:'Em học khối mấy, lớp mấy?',gcG:'Khối',gcC:'Lớp',qHosp:'Em đã đi khám bệnh vì lần đau này chưa?',qMed:'Dạo này em có đang uống thuốc không? Chọn tất cả.',qCause:'Vì sao em bị như vậy?',qMind:'Bây giờ trong lòng em thấy thế nào?',
+  doneT:'Giỏi lắm! Hãy đưa máy tính bảng cho thầy cô.',doneB:'Thầy cô sẽ giúp em ngay.',noVoice:'🔇 Thiết bị này không phát được tiếng. Hãy xem hình và chữ.',stepOf:'Bước'},
+ en:{chooseLang:'Choose your language',listen:'🔊 Listen',next:'Next',back:'Back',pickOne:'Pick at least one',pickOneSingle:'Pick one',
+  qEmerg:'Is any of this happening now?',eNone:'No, none of these',stopT:'Call a teacher now!',stopB:'Stay where you are and don\'t move. A teacher will help you soon.',
+  qBody:'Where does it hurt? Tap the picture.',front:'Front',rear:'Back',unsure:'I\'m not sure',chosen:'Selected',
+  qSym:'How do you feel? Pick all that fit.',qStype:'How does your tummy hurt? Pick all that fit.',qPain:'How much does it hurt?',qWhen:'When did it start?',qGc:'What grade and class are you in?',gcG:'Grade',gcC:'Class',qHosp:'Did you see a doctor for this?',qMed:'Are you taking any medicine these days? Pick all that fit.',qCause:'How did it happen?',qMind:'How do you feel inside right now?',
+  doneT:'Great job! Please give the tablet to the teacher.',doneB:'The teacher will help you soon.',noVoice:'🔇 This device can\'t play sound. Please look at the pictures and words.',stepOf:'Step'}
+};
+
+/* 학생 응급 징후 (그림 문진) */
+var EMERG=[
+ {id:'breath',em:'🫁',ko:'숨쉬기가 힘들어요',zh:'喘不过气',vi:'Em khó thở',en:'It is hard to breathe',k:'호흡곤란 호소'},
+ {id:'bleed',em:'🩸',ko:'피가 많이 나요',zh:'流了很多血',vi:'Em chảy nhiều máu',en:'I am bleeding a lot',k:'많은 출혈 호소'},
+ {id:'head',em:'💥',ko:'머리를 세게 부딪혔어요',zh:'头被重重撞到了',vi:'Em bị đập đầu mạnh',en:'I hit my head hard',k:'머리 강하게 부딪힘'},
+ {id:'faint',em:'😵',ko:'쓰러질 것 같아요',zh:'我快要晕倒了',vi:'Em sắp ngất',en:'I feel like I will faint',k:'실신 직전 느낌'},
+ {id:'swell',em:'😳',ko:'얼굴·입술이 붓고 온몸이 가려워요',zh:'脸和嘴唇肿了，全身发痒',vi:'Mặt, môi sưng và ngứa khắp người',en:'My face or lips are swelling and my whole body itches',k:'얼굴·입술 부종, 전신 가려움'},
+ {id:'chest',em:'🫀',ko:'가슴이 많이 아파요',zh:'胸口很痛',vi:'Em đau ngực nhiều',en:'My chest hurts a lot',k:'심한 가슴 통증'}
+];
+
+/* 몸 부위 (팔: 위팔·아래팔 / 다리: 허벅지·종아리 / 배: 9구역) */
+var PART_NAME={
+ head:{ko:'머리',zh:'头',vi:'Đầu',en:'Head',k:'머리'}, neck:{ko:'목',zh:'脖子',vi:'Cổ',en:'Neck',k:'목'},
+ chest:{ko:'가슴',zh:'胸口',vi:'Ngực',en:'Chest',k:'가슴'},
+ back:{ko:'등',zh:'后背',vi:'Lưng',en:'Back',k:'등'}, waist:{ko:'허리·엉덩이',zh:'腰和屁股',vi:'Eo và mông',en:'Lower back',k:'허리·엉덩이'},
+ uarm:{ko:'위팔',zh:'上臂',vi:'Cánh tay trên',en:'Upper arm',k:'위팔(상완)'},
+ farm:{ko:'아래팔',zh:'前臂',vi:'Cẳng tay',en:'Lower arm',k:'아래팔(하완)'},
+ hand:{ko:'손',zh:'手',vi:'Bàn tay',en:'Hand',k:'손'},
+ thigh:{ko:'허벅지',zh:'大腿',vi:'Đùi',en:'Thigh',k:'허벅지(대퇴)'},
+ shin:{ko:'종아리',zh:'小腿',vi:'Cẳng chân',en:'Lower leg',k:'종아리·정강이(하퇴)'},
+ foot:{ko:'발',zh:'脚',vi:'Bàn chân',en:'Foot',k:'발'},
+ b_ru:{ko:'배 오른쪽 위',zh:'肚子右上',vi:'Bụng trên bên phải',en:'Upper right tummy',k:'오른쪽 위배(우계륵부)'},
+ b_cu:{ko:'배 가운데 위(명치)',zh:'肚子中上（心窝）',vi:'Giữa bụng trên',en:'Upper middle tummy',k:'명치(상복부)'},
+ b_lu:{ko:'배 왼쪽 위',zh:'肚子左上',vi:'Bụng trên bên trái',en:'Upper left tummy',k:'왼쪽 위배(좌계륵부)'},
+ b_rm:{ko:'배 오른쪽 옆',zh:'肚子右边',vi:'Bụng bên phải',en:'Right side of tummy',k:'오른쪽 옆배(우요부)'},
+ b_cm:{ko:'배꼽 주변',zh:'肚脐周围',vi:'Quanh rốn',en:'Around the belly button',k:'배꼽 주위(제부)'},
+ b_lm:{ko:'배 왼쪽 옆',zh:'肚子左边',vi:'Bụng bên trái',en:'Left side of tummy',k:'왼쪽 옆배(좌요부)'},
+ b_rl:{ko:'배 오른쪽 아래',zh:'肚子右下',vi:'Bụng dưới bên phải',en:'Lower right tummy',k:'오른쪽 아랫배(우서혜부)'},
+ b_cl:{ko:'배 가운데 아래',zh:'肚子中下',vi:'Giữa bụng dưới',en:'Lower middle tummy',k:'아랫배 가운데(하복부)'},
+ b_ll:{ko:'배 왼쪽 아래',zh:'肚子左下',vi:'Bụng dưới bên trái',en:'Lower left tummy',k:'왼쪽 아랫배(좌서혜부)'},
+ /* 이전 버전 기록 호환 */
+ belly:{ko:'배',zh:'肚子',vi:'Bụng',en:'Tummy',k:'배'}, arm:{ko:'팔',zh:'手臂',vi:'Cánh tay',en:'Arm',k:'팔'}, leg:{ko:'다리',zh:'腿',vi:'Chân',en:'Leg',k:'다리'}
+};
+var SIDE={r:{ko:'오른쪽',zh:'右',vi:'Phải',en:'Right'},l:{ko:'왼쪽',zh:'左',vi:'Trái',en:'Left'}};
+var BELLY_GRID=[['ru','cu','lu'],['rm','cm','lm'],['rl','cl','ll']]; // 학생 몸 기준 (r=학생의 오른쪽)
+function partBase(id){return String(id).replace(/_[lr]$/,'');}
+function partGroup(id){var b=partBase(id);if(/^b_/.test(b)||b==='belly')return 'belly';if(b==='uarm'||b==='farm')return 'arm';if(b==='thigh'||b==='shin')return 'leg';return b;}
+function partInfo(id){return PART_NAME[partBase(id)]||PART_NAME[id]||{ko:String(id),zh:String(id),vi:String(id),en:String(id),k:String(id)};}
+function partStu(id,l){return partInfo(id)[l];}
+function partKo(id){var b=partInfo(id).k;if(/_r$/.test(id))return '오른쪽 '+b;if(/_l$/.test(id))return '왼쪽 '+b;return b;}
+
+/* 통증 척도 0~10 (얼굴 그림 + 점수 + 색 막대) — 통증을 묻는 증상에서만 사용 */
+var PAIN10=[
+ {v:0,ko:'안 아파요',zh:'不痛',vi:'Không đau',en:'No hurt'},
+ {v:2,ko:'조금 아파요',zh:'有一点痛',vi:'Hơi đau',en:'A little'},
+ {v:4,ko:'아파요',zh:'痛',vi:'Đau',en:'It hurts'},
+ {v:6,ko:'많이 아파요',zh:'很痛',vi:'Đau nhiều',en:'A lot'},
+ {v:8,ko:'아주 많이 아파요',zh:'非常痛',vi:'Rất đau',en:'Very much'},
+ {v:10,ko:'참을 수 없어요',zh:'痛得受不了',vi:'Đau không chịu được',en:'I can\'t stand it'}];
+var PAIN_SYMS=['headache','stomach','wound','sprain','burn','bite','eye','tooth'];
+var PAIN_COL=['#3FA34D','#7DBB42','#B9CC3A','#E8C12F','#F2A12E','#EF8430','#E8682F','#DD4E2F','#CC3A2C','#B42318','#8E1B13'];
+function needsPain(c){for(var i=0;i<c.syms.length;i++)if(PAIN_SYMS.indexOf(c.syms[i])>=0)return true;return false;}
+function painVal(c){if(c.pain===null||c.pain===undefined||c.pain==='')return null;return c.ps===10?c.pain:(c.pain>0?c.pain*2:null);} // 이전 5점 기록 호환
+function painLabel(v){var o=null;for(var i=0;i<PAIN10.length;i++)if(PAIN10[i].v<=v)o=PAIN10[i];return o?o.ko:'';}
+function gaugeHTML(v,big){var h='<div class="gauge'+(big?' big':'')+'" role="img" aria-label="아픈 정도 '+v+'점 / 10점">';
+  for(var i=0;i<=10;i++)h+='<span style="background:'+(i<=v?PAIN_COL[i]:'#E6E1D8')+'">'+(big?i:'')+'</span>';return h+'</div>';}
+function painText(v){return v===null?'—':v+'/10 · '+painLabel(v);}
+
+var WHEN=[
+ {id:'now',em:'⏱️',ko:'방금',zh:'刚才',vi:'Vừa mới',en:'Just now',k:'방금'},
+ {id:'today',em:'☀️',ko:'오늘',zh:'今天',vi:'Hôm nay',en:'Today',k:'오늘'},
+ {id:'yday',em:'🌙',ko:'어제부터',zh:'从昨天开始',vi:'Từ hôm qua',en:'Since yesterday',k:'어제부터'},
+ {id:'long',em:'📅',ko:'더 오래전부터',zh:'更早以前',vi:'Lâu hơn nữa',en:'Longer ago',k:'2일 이상 전부터'}];
+var CAUSE=[
+ {id:'fall',em:'🤸',ko:'넘어지거나 부딪혔어요',zh:'摔倒或撞到了',vi:'Em bị ngã hoặc va vào',en:'I fell or bumped into something',k:'넘어짐·부딪힘'},
+ {id:'sport',em:'⚽',ko:'운동하다가',zh:'运动的时候',vi:'Khi chơi thể thao',en:'While playing sports',k:'운동 중'},
+ {id:'other',em:'👥',ko:'다른 사람 때문에 다쳤어요',zh:'因为别人受伤了',vi:'Em bị thương vì người khác',en:'Someone else hurt me',k:'다른 사람 때문에 다침'},
+ {id:'food',em:'🍱',ko:'먹고 나서 아파요',zh:'吃了东西以后不舒服',vi:'Đau sau khi ăn',en:'After eating',k:'음식 섭취 후'},
+ {id:'none',em:'🙂',ko:'그냥 아파요',zh:'就是不舒服',vi:'Tự nhiên thấy đau',en:'It just hurts',k:'특별한 원인 없음'},
+ {id:'unsure',em:'❓',ko:'잘 모르겠어요',zh:'我不知道',vi:'Em không biết',en:'I\'m not sure',k:'모름'}];
+var STYPE=[
+ {id:'stab',em:'📌',ko:'콕콕 찌르듯 쑤셔요',zh:'像针扎一样痛',vi:'Đau nhói như kim châm',en:'Sharp, stabbing pain',k:'찌르는 듯한 통증'},
+ {id:'burn',em:'🌶️',ko:'속이 쓰려요',zh:'胃里火辣辣的',vi:'Nóng rát trong bụng',en:'Burning feeling',k:'쓰림(타는 듯한 통증)'},
+ {id:'gurgle',em:'💨',ko:'부글부글 꾸르륵거려요',zh:'肚子咕噜咕噜响',vi:'Bụng sôi ùng ục',en:'Gurgling, bubbly tummy',k:'부글거림(가스·장음)'},
+ {id:'cramp',em:'🌀',ko:'배가 꼬이듯 쥐어짜요',zh:'肚子绞着痛',vi:'Đau quặn bụng',en:'Twisting, cramping pain',k:'쥐어짜는 듯한 통증'},
+ {id:'dull',em:'🎈',ko:'묵직하고 더부룩해요',zh:'闷闷的、胀胀的',vi:'Đau âm ỉ, đầy bụng',en:'Dull, full, heavy feeling',k:'둔통·더부룩함'},
+ {id:'sudden',em:'⚡',ko:'갑자기 많이 아파요',zh:'突然很痛',vi:'Đột nhiên đau nhiều',en:'Sudden strong pain',k:'갑작스러운 통증'},
+ {id:'onoff',em:'🔁',ko:'아팠다 안 아팠다 해요',zh:'一阵一阵地痛',vi:'Lúc đau lúc không',en:'It comes and goes',k:'간헐적·주기적'},
+ {id:'constant',em:'⏳',ko:'계속 아파요',zh:'一直痛',vi:'Đau liên tục',en:'It hurts all the time',k:'지속적'},
+ {id:'move',em:'👇',ko:'움직이거나 누르면 더 아파요',zh:'动或按的时候更痛',vi:'Đau hơn khi cử động hoặc ấn vào',en:'It hurts more when I move or press',k:'움직임·누름 시 악화'},
+ {id:'unsure',em:'❓',ko:'잘 모르겠어요',zh:'我不知道',vi:'Em không biết',en:'I\'m not sure',k:'모름'}];
+var HOSP=[
+ {id:'yes',em:'🏥',ko:'네, 다녀왔어요',zh:'去过',vi:'Rồi, em đã đi khám',en:'Yes, I did',k:'진료 받음'},
+ {id:'no',em:'🙅',ko:'아니요',zh:'没去过',vi:'Chưa',en:'No',k:'진료 안 받음'},
+ {id:'unsure',em:'❓',ko:'잘 모르겠어요',zh:'我不知道',vi:'Em không biết',en:'I\'m not sure',k:'모름'}];
+var MEDQ=[
+ {id:'daily',em:'💊',ko:'매일 먹는 약이 있어요',zh:'我每天都吃药',vi:'Em uống thuốc mỗi ngày',en:'I take medicine every day',k:'매일 복용하는 약 있음'},
+ {id:'today',em:'🥄',ko:'오늘 아파서 약을 먹고 왔어요',zh:'今天因为不舒服吃了药',vi:'Hôm nay em đã uống thuốc vì bị ốm',en:'I took medicine today because I felt sick',k:'오늘 약 먹고 등교'},
+ {id:'none',em:'🙅',ko:'아니요, 없어요',zh:'没有',vi:'Không, em không uống thuốc',en:'No, none',k:'복용 약 없음'},
+ {id:'unsure',em:'❓',ko:'잘 모르겠어요',zh:'我不知道',vi:'Em không biết',en:'I\'m not sure',k:'모름'}];
+var MIND=[
+ {id:'ok',em:'😊',ko:'괜찮아요',zh:'还好',vi:'Em ổn',en:'I\'m okay',k:'괜찮음'},
+ {id:'worry',em:'😟',ko:'조금 걱정돼요',zh:'有点担心',vi:'Em hơi lo',en:'A little worried',k:'조금 걱정됨'},
+ {id:'hard',em:'😢',ko:'마음이 많이 힘들어요',zh:'心里很难受',vi:'Trong lòng em thấy rất khó chịu',en:'I feel really bad inside',k:'마음이 많이 힘듦'}];
+function findBy(arr,id){for(var i=0;i<arr.length;i++)if(arr[i].id===id)return arr[i];return null;}
+
+/* ---------- 증상 데이터 (고정 문구 · 출처) ---------- */
+function L(ko,zh,vi,en){return {ko:ko,zh:zh,vi:vi,en:en};}
+var SYMS=[
+{id:'headache',em:'🤕',name:L('머리가 아파요','头痛','Đau đầu','Headache'),k:'두통',inner:true,
+ src:SRC_G+' Ⅻ 통증(p.55~57) · '+SRC_M+' 두통(p.43)',
+ E:['의식 변화','급성 신경학적 이상(마비·감각 이상 등)','머리 손상과 함께 의식 변화가 있는 두통','경련(발작)'],
+ U:['심한 두통','발열을 동반한 목의 경직','최근의 머리 부상','구토를 동반한 중등도 두통','흐릿한 시야·어지러움·눈부심'],
+ N:['일반적인 경미한 두통','감기 증상 동반','편두통 병력'],
+ care:['활력징후(체온·맥박·호흡·혈압) 측정','자극적인 빛·소리·냄새를 피하고 조용하고 어두운 곳에서 휴식','머리나 목을 편하게 받쳐 주는 베개 사용','관자놀이·두피·목의 누르면 아픈 부위를 손가락으로 눌러 주기, 필요 시 냉찜질(눈·목 뒤·머리)','반복되거나 진통제 복용 후에도 완화되지 않으면 병원 진료 권유'],
+ agent:['조용하고 어두운 곳에서 쉬게 하기','머리·목을 편하게 받쳐 주기','구토·의식 변화·머리 부상이 있으면 119 신고 후 관리자 보고','그 밖의 내과적 증상은 담임교사를 통해 보호자에게 인계'],
+ home:[L('조용하고 어두운 곳에서 쉬게 해 주세요.','请让孩子在安静、光线暗的地方休息。','Cho con nghỉ ở nơi yên tĩnh và tối.','Let your child rest in a quiet, dim place.'),
+       L('자극적인 빛·소리·냄새를 피하고 충분히 자게 해 주세요.','避免强光、噪音和刺激性气味，并让孩子睡足。','Tránh ánh sáng mạnh, tiếng ồn, mùi khó chịu và cho con ngủ đủ giấc.','Avoid bright light, loud noise and strong smells, and make sure your child sleeps enough.')],
+ hosp:[L('토하거나, 머리를 다친 뒤 아프거나, 평소와 달리 멍하거나 이상한 행동을 하면 바로 병원에 가세요.','如果孩子呕吐、头部受伤后头痛，或与平时不同、发呆或行为异常，请立即就医。','Nếu con nôn, đau đầu sau khi bị va đập ở đầu, hoặc lơ mơ, cư xử khác thường, hãy đưa con đi bệnh viện ngay.','Go to a hospital right away if your child vomits, has a headache after a head injury, or seems confused or acts unusually.'),
+       L('열이 나면서 목이 뻣뻣하거나, 두통이 자주 반복되면 진료를 받아 보세요.','如果发烧并且脖子发硬，或经常反复头痛，请就医。','Nếu con sốt kèm cứng cổ, hoặc đau đầu lặp lại thường xuyên, hãy cho con đi khám.','See a doctor if there is fever with a stiff neck, or if headaches keep coming back.')]},
+{id:'stomach',em:'😖',name:L('배가 아파요','肚子痛','Đau bụng','Tummy ache'),k:'복통',inner:true,
+ src:SRC_G+' Ⅻ 통증(p.55~58) · '+SRC_M+' 복통(p.41~42)',
+ E:['의식 상태 변화','복부 팽만·강직','배꼽이나 옆구리 주위의 퍼런 변색','극심한 복통(얼굴 창백·빈맥·식은땀)','복부·비뇨기계 부상'],
+ U:['중등도의 복통이나 배뇨곤란','지속적인 오심·구토·설사·발열을 동반한 복통','혈변(선홍색 또는 타르색)'],
+ N:['경미하거나 간헐적인 복통','월경통','반복적인 복통(필요 시 상담 의뢰)'],
+ care:['필요 시 금식(응급·긴급 단계는 입으로 아무것도 주지 않음)','의복을 느슨하게 풀고 무릎을 구부려 복압 감소','조용한 실내에서 안정','식습관·배변 습관·월경 여부 확인','상황에 따라 복부 마사지 또는 온찜질 — 염증이나 출혈이 의심되면 하지 않음'],
+ agent:['편안한 자세로 눕히고 옷을 느슨하게 하기','입으로 아무것도 주지 않기','극심한 통증·의식 변화가 있으면 119 신고 후 관리자 보고','그 밖의 내과적 증상은 담임교사를 통해 보호자에게 인계'],
+ home:[L('조용한 곳에서 쉬게 하고 옷을 느슨하게 해 주세요. 무릎을 구부리고 누우면 편할 수 있어요.','请让孩子在安静的地方休息，把衣服松开。弯曲膝盖躺下可能会舒服一些。','Cho con nghỉ ở nơi yên tĩnh, nới lỏng quần áo. Nằm co gối có thể giúp con dễ chịu hơn.','Let your child rest somewhere quiet with loose clothing. Lying down with knees bent may help.'),
+       L('배가 많이 아플 때는 음식을 잠시 쉬고, 평소 식사·배변 습관을 살펴 주세요.','肚子很痛时请暂时不要进食，并留意孩子平时的饮食和排便习惯。','Khi con đau bụng nhiều, hãy tạm ngưng ăn và để ý thói quen ăn uống, đi vệ sinh của con.','When the pain is strong, pause food for a while and watch your child\'s eating and bowel habits.')],
+ hosp:[L('배가 단단하게 부풀거나, 열·계속되는 구토·설사가 함께 있거나, 빨간색·검은색 변을 보면 병원에 가세요.','如果肚子发硬鼓胀，伴有发烧、持续呕吐或腹泻，或大便呈红色或黑色，请去医院。','Nếu bụng cứng và chướng, kèm sốt, nôn hoặc tiêu chảy kéo dài, hoặc phân màu đỏ hay đen, hãy đưa con đến bệnh viện.','Go to a hospital if the tummy is hard and swollen, if there is fever, ongoing vomiting or diarrhea, or if stools are red or black.')]},
+{id:'fever',em:'🤒',name:L('열이 나요','发烧','Bị sốt','Fever'),k:'발열',inner:true,
+ src:SRC_M+' 열 관련 질환(p.46) · '+SRC_G+' 응급상황 판단기준 표1-2(p.4)',
+ E:['고열(40℃ 이상)','혼미·의식 상태 변화','뜨겁고 건조한 붉은 피부(열사병 의심)','실신','경련'],
+ U:['38℃ 이상 고열(8세 이하는 응급에 준하는 증상)','목이 뻣뻣하고 두통 동반','숨이 차고 기침 동반','오심·구토','허약감·어지러움'],
+ N:['정상 체온 또는 경한 체온 상승, 의식 명료','감기 증상'],
+ care:['활력징후(체온·맥박·호흡·혈압·산소포화도) 측정','시원한 환경에서 휴식, 옷을 느슨하게','차갑고 젖은 수건 대기, 바람 불어 넣기(부채·선풍기)','구토가 없으면 소량의 물이나 이온음료 섭취 권장','보호자 연락 후 병원 또는 귀가 / 감염병 의심 시 학교 감염병 대응 절차에 따름'],
+ agent:['시원한 곳에서 쉬게 하고 옷을 느슨하게 하기','의식 변화·경련이 있으면 119 신고 후 관리자 보고','담임교사를 통해 보호자에게 인계'],
+ home:[L('시원한 곳에서 쉬게 하고 옷을 느슨하게 해 주세요.','请让孩子在凉爽的地方休息，衣服穿得宽松些。','Cho con nghỉ ở nơi mát mẻ và mặc quần áo rộng rãi.','Let your child rest in a cool place in loose clothing.'),
+       L('토하지 않으면 물이나 이온음료를 조금씩 마시게 해 주세요.','如果不呕吐，请让孩子少量多次地喝水或电解质饮料。','Nếu con không nôn, cho con uống từng ngụm nước hoặc nước điện giải.','If your child is not vomiting, give small sips of water or a sports drink.'),
+       L('감염병으로 진단받으면 담임 선생님께 알려 주세요.','如被诊断为传染病，请告知班主任。','Nếu con được chẩn đoán mắc bệnh truyền nhiễm, xin báo cho giáo viên chủ nhiệm.','If your child is diagnosed with an infectious disease, please tell the homeroom teacher.')],
+ hosp:[L('열이 계속되거나, 목이 뻣뻣하고 머리가 아프거나, 숨이 차고 기침을 하거나, 경련을 하면 병원에 가세요.','如果持续发烧，脖子发硬并头痛，呼吸急促并咳嗽，或出现抽搐，请去医院。','Nếu con sốt kéo dài, cứng cổ và đau đầu, khó thở kèm ho, hoặc bị co giật, hãy đưa con đến bệnh viện.','Go to a hospital if the fever continues, or if there is a stiff neck with headache, shortness of breath with cough, or a seizure.')]},
+{id:'vomit',em:'🤢',name:L('토할 것 같아요','想吐','Buồn nôn','Feel like throwing up'),k:'구토·메스꺼움',inner:true,
+ src:SRC_M+' 복통(p.42)·실신(p.45) · '+SRC_I+' 수인성·식품매개감염병(p.38~39) · '+SRC_G+' 표1-2(p.4)',
+ E:['의식 변화','심한 탈수','토혈(피를 토함)'],
+ U:['지속적인 오심·구토','발열·복통을 동반한 구토','머리 부상 후 구토'],
+ N:['일시적인 구역감'],
+ care:['구토 시 고개를 한쪽으로 돌려 흡인 예방','구토가 멈추면 경구로 수분·전해질을 조금씩 보충','흐르는 물에 비누로 30초 이상 손 씻기','구토물·접촉 환경·사용한 물건 염소 소독(1,000~5,000ppm)','같은 증상 학생이 여럿이면 감염병(집단 발생) 대응 절차 확인'],
+ agent:['토할 때 고개를 옆으로 돌려 흡인 예방','구토물은 장갑을 끼고 치운 뒤 소독, 비누로 손 씻기','머리를 다친 뒤 토하면 119 신고 후 관리자 보고','그 밖에는 담임교사를 통해 보호자에게 인계'],
+ home:[L('토한 뒤에는 물을 조금씩 자주 마시게 해서 수분을 보충해 주세요.','呕吐后请让孩子少量多次地喝水，补充水分。','Sau khi nôn, cho con uống từng ngụm nước nhiều lần để bù nước.','After vomiting, give small, frequent sips of fluid to prevent dehydration.'),
+       L('토한 것이 묻은 곳은 염소 소독제로 닦아 주세요.','被呕吐物沾到的地方请用含氯消毒剂擦拭。','Lau chỗ dính chất nôn bằng chất khử trùng có clo.','Clean areas touched by vomit with a chlorine-based disinfectant.'),
+       L('흐르는 물에 비누로 30초 이상 손을 씻게 해 주세요.','请让孩子用肥皂在流动的水下洗手30秒以上。','Cho con rửa tay bằng xà phòng dưới vòi nước chảy ít nhất 30 giây.','Have your child wash hands with soap under running water for at least 30 seconds.')],
+ hosp:[L('구토가 계속되거나 열·배앓이가 함께 있으면 병원에 가세요. 머리를 다친 뒤 토하면 바로 병원에 가세요.','如果持续呕吐，或伴有发烧、肚子痛，请去医院。头部受伤后呕吐请立即就医。','Nếu con nôn liên tục hoặc kèm sốt, đau bụng, hãy đưa con đến bệnh viện. Nếu nôn sau khi bị va đập ở đầu, hãy đi bệnh viện ngay.','Go to a hospital if vomiting continues or comes with fever or tummy pain. If vomiting follows a head injury, go right away.')]},
+{id:'diarrhea',em:'🚽',name:L('설사해요','拉肚子','Bị tiêu chảy','Diarrhea'),k:'설사',inner:true,
+ src:SRC_M+' 복통(p.41~42) · '+SRC_I+' 수인성·식품매개감염병(p.32~33, 38~39) · '+SRC_G+' 표1-2(p.4)',
+ E:['의식 변화','심한 탈수','다량의 혈변'],
+ U:['지속적인 설사','발열·복통을 동반한 설사','혈변(선홍색 또는 타르색)'],
+ N:['1~2회 설사 후 호전'],
+ care:['경구로 수분·전해질 보충','흐르는 물에 비누로 30초 이상 손 씻기(알코올 손소독제만으로는 일부 바이러스 제거가 부족)','화장실 등 접촉 환경 염소 소독','식습관·최근 먹은 음식 확인','같은 증상 학생이 여럿이면 감염병(집단 발생) 대응 절차 확인'],
+ agent:['화장실을 편하게 이용하게 하고 물을 조금씩 마시게 하기','비누로 손 씻기 지도','담임교사를 통해 보호자에게 인계'],
+ home:[L('물을 조금씩 자주 마시게 해서 수분을 보충해 주세요.','请让孩子少量多次地喝水，补充水分。','Cho con uống từng ngụm nước nhiều lần để bù nước.','Give small, frequent sips of fluid to prevent dehydration.'),
+       L('화장실 사용 후 흐르는 물에 비누로 30초 이상 손을 씻게 해 주세요.','上厕所后请让孩子用肥皂在流动的水下洗手30秒以上。','Sau khi đi vệ sinh, cho con rửa tay bằng xà phòng dưới vòi nước chảy ít nhất 30 giây.','After using the toilet, have your child wash hands with soap under running water for at least 30 seconds.'),
+       L('화장실 등 손이 자주 닿는 곳은 염소 소독제로 닦아 주세요.','厕所等经常接触的地方请用含氯消毒剂擦拭。','Lau các nơi hay chạm tay như nhà vệ sinh bằng chất khử trùng có clo.','Clean frequently touched places such as the toilet with a chlorine-based disinfectant.')],
+ hosp:[L('설사가 계속되고 열·배앓이가 함께 있거나, 피 섞인 변을 보면 병원에 가세요.','如果持续腹泻，并伴有发烧、肚子痛，或大便带血，请去医院。','Nếu con tiêu chảy liên tục kèm sốt, đau bụng, hoặc phân có máu, hãy đưa con đến bệnh viện.','Go to a hospital if diarrhea continues with fever or tummy pain, or if there is blood in the stool.')]},
+{id:'dizzy',em:'😵',name:L('어지러워요','头晕','Chóng mặt','Dizzy'),k:'어지러움',inner:true,
+ src:SRC_G+' Ⅲ 실신과 의식장애(p.25~26) · '+SRC_M+' 실신(p.45)',
+ E:['불러도 눈을 뜨지 못하고 의식이 없음','횡설수설 등 의식이 명료하지 않거나 변화가 있음','혼자 서거나 걸을 수 없을 정도의 어지러움','두부 손상·구토·심한 통증 동반','경련','불규칙한 맥박'],
+ U:['중등도의 저혈당 증상(식은땀·떨림 등)','탈수로 인한 실신','격한 운동으로 인한 실신','의식 변화 없는 심한 두통'],
+ N:['가벼운 두통과 어지러움','불안·통증 등에 의한 일시적 어지러움, 관련 부상 없음'],
+ care:['어지럽거나 쓰러질 것 같으면 눕거나 앉아서 휴식','단추·허리띠 등 꽉 조이는 옷 풀어 주기','활력징후·산소포화도·혈당 측정','이불이나 시트를 덮어 보온','의식이 있더라도 바로 일으켜 세워 이동하지 않기','미주신경성 실신: 바로 눕히고 다리를 올려 뇌 혈류 증가'],
+ agent:['바로 눕히거나 앉혀서 쉬게 하기, 조이는 옷 풀기','의식이 있어도 바로 일으켜 세우지 않기','반응이 없거나 의식 변화가 있으면 119 신고, 호흡·맥박이 없으면 심폐소생술','담임교사를 통해 보호자에게 인계'],
+ home:[L('어지러우면 바로 눕거나 앉아서 쉬게 해 주세요.','头晕时请让孩子马上躺下或坐下休息。','Khi chóng mặt, cho con nằm hoặc ngồi xuống nghỉ ngay.','When dizzy, have your child lie down or sit and rest right away.'),
+       L('꽉 조이는 옷을 풀어 주고, 갑자기 일어나지 않게 해 주세요.','请松开过紧的衣服，不要让孩子突然站起来。','Nới lỏng quần áo chật và không để con đứng dậy đột ngột.','Loosen tight clothing and don\'t let your child stand up suddenly.')],
+ hosp:[L('쓰러졌거나, 두통·구토가 함께 있거나, 어지러움이 자주 반복되면 병원에 가세요.','如果曾晕倒，伴有头痛或呕吐，或经常反复头晕，请去医院。','Nếu con từng ngất, có kèm đau đầu hoặc nôn, hoặc chóng mặt lặp lại thường xuyên, hãy đưa con đến bệnh viện.','Go to a hospital if your child fainted, has headache or vomiting, or gets dizzy often.')]},
+{id:'nose',em:'👃',name:L('코피가 나요','流鼻血','Chảy máu mũi','Nosebleed'),k:'코피',inner:false,
+ src:SRC_G+' ⅩⅣ 안면손상(코피)(p.63~64)',
+ E:['심한 코피로 인한 기도폐쇄 증상','멈추지 않는 코피'],
+ U:['30분 이상 출혈이 멈추지 않음','코뼈 골절 의심','후방 출혈 의심','고혈압·항응고제·아스피린 복용'],
+ N:['지혈이 가능한 코피'],
+ care:['학생을 침착하게 안정시킴','앉혀서 고개를 앞으로 숙이는 자세(피가 목 뒤로 넘어가 구토하는 것 방지)','양쪽 콧구멍 앞부분을 검지와 엄지로 10분 정도 압박','입으로 숨 쉬게 하고 피는 삼키지 말고 뱉도록 함','10분 후 지혈 확인, 필요 시 냉찜질(코·뒷머리) — 눈·안구 손상 시 냉찜질 금지','멈춘 뒤 코를 풀거나 비비지 않도록 설명, 30분 이상 출혈 시 병원 이송'],
+ agent:['앉혀서 고개를 앞으로 숙이게 하기','콧구멍 앞부분을 엄지·검지로 10분 정도 꼭 누르기','피는 삼키지 말고 뱉게 하기','10분 뒤에도 계속되면 다시 누르고, 30분 넘게 멈추지 않으면 보호자 연락·병원 이송'],
+ home:[L('코피가 나면 앉아서 고개를 앞으로 숙이고, 콧구멍 앞부분을 엄지와 검지로 10분 정도 꼭 눌러 주세요.','流鼻血时请坐下，头向前倾，用拇指和食指捏住鼻孔前部约10分钟。','Khi chảy máu mũi, cho con ngồi, cúi đầu về phía trước và dùng ngón cái, ngón trỏ bóp chặt phần trước của mũi khoảng 10 phút.','For a nosebleed, sit up, lean forward, and pinch the soft front part of the nose with thumb and finger for about 10 minutes.'),
+       L('피는 삼키지 말고 뱉게 하고, 멈춘 뒤에는 코를 풀거나 비비지 않게 해 주세요.','让孩子把血吐出来不要咽下，止血后不要擤鼻涕或揉鼻子。','Cho con nhổ máu ra, không nuốt. Sau khi cầm máu, không để con xì mũi hoặc dụi mũi.','Spit out blood rather than swallowing it. After it stops, don\'t blow or rub the nose.')],
+ hosp:[L('30분 넘게 멈추지 않거나, 코뼈를 다친 것 같으면 병원에 가세요.','如果超过30分钟仍不止血，或鼻骨可能受伤，请去医院。','Nếu máu không ngừng sau hơn 30 phút, hoặc có thể bị tổn thương xương mũi, hãy đưa con đến bệnh viện.','Go to a hospital if bleeding lasts more than 30 minutes or the nose bone may be injured.')]},
+{id:'wound',em:'🩹',name:L('까지거나 베였어요','擦伤或割伤','Bị trầy xước hoặc bị cắt','Scrape or cut'),k:'상처(찰과상·열상)',inner:false,
+ src:SRC_G+' Ⅵ 출혈 및 상처(p.35~36) · '+SRC_M+' 열상/찰과상(p.47)',
+ E:['지혈이 안 되는 심한 출혈','출혈과 함께 어지러움·의식 변화(출혈성 쇼크 증상)','관통상·절단','손상 부위 아래쪽 맥박 소실'],
+ U:['심하게 오염된 열상','얼굴의 열상','발의 찔린 상처(자상)','봉합이 필요한 상처'],
+ N:['경미한 찰과상이나 열상','작은 가시나 이물질'],
+ care:['흐르는 물로 상처를 씻어 흙이나 오염물질 제거','출혈 시 깨끗한 거즈로 상처 부위를 직접 압박','상처 안에 이물질이 남아 있는지 확인(박힌 칼·못·유리는 빼지 말고 고정)','지혈 후 드레싱, 필요 시 붕대 적용','오염된 물질에 다친 상처는 파상풍 예방접종 안내','봉합이 필요하면 소독약·연고를 바르지 말고 멸균거즈로 덮어 후송'],
+ agent:['장갑을 끼고 흐르는 물로 상처 씻기','깨끗한 거즈로 직접 눌러 지혈','박힌 물체는 빼지 말고 고정','지혈 후 밴드나 거즈로 덮기','지혈이 안 되거나 어지러워하면 119 신고'],
+ home:[L('상처는 흐르는 물로 씻어 깨끗하게 하고, 깨끗한 거즈나 밴드로 덮어 주세요.','请用流动的水清洗伤口，并用干净的纱布或创可贴盖好。','Rửa vết thương bằng nước chảy cho sạch và che bằng gạc hoặc băng sạch.','Rinse the wound with running water and cover it with clean gauze or a bandage.'),
+       L('피가 나면 깨끗한 거즈로 직접 눌러 주세요.','如果出血，请用干净的纱布直接按压。','Nếu chảy máu, dùng gạc sạch ấn trực tiếp lên vết thương.','If it bleeds, press directly on it with clean gauze.'),
+       L('더러운 물건에 다쳤다면 파상풍 예방접종을 확인해 주세요.','如果是被脏东西弄伤的，请确认破伤风疫苗接种情况。','Nếu bị thương do vật bẩn, hãy kiểm tra việc tiêm phòng uốn ván.','If the injury came from a dirty object, check your child\'s tetanus vaccination.')],
+ hosp:[L('피가 멈추지 않거나, 상처가 깊어 꿰매야 할 것 같거나, 얼굴이 찢어졌거나 발을 찔렸으면 병원에 가세요.','如果血止不住、伤口深可能需要缝合、脸部裂伤或脚被扎伤，请去医院。','Nếu máu không cầm được, vết thương sâu có thể cần khâu, bị rách ở mặt hoặc bị đâm vào chân, hãy đưa con đến bệnh viện.','Go to a hospital if bleeding won\'t stop, the cut may need stitches, the face is cut, or the foot was pierced.')]},
+{id:'sprain',em:'🦵',name:L('부딪히거나 삐었어요','撞伤或扭伤','Bị va đập hoặc bong gân','Bump or twist'),k:'타박·염좌',inner:false,
+ src:SRC_G+' Ⅺ 골절 및 외상(p.51~52) · '+SRC_M+' 근골격계 손상·냉찜질(p.39~40)',
+ E:['개방골절(뼈가 밖으로 보임)','절단','사지나 관절의 변형','심한 부종','신경·혈관 손상 의심(감각 이상·창백·차가움)','대퇴부 골절 의심'],
+ U:['개방성 없는 중등도의 변형·변색','중등도의 부종','중등도의 통증','탈구 의심(빠진 것 같은 느낌)'],
+ N:['변형 없음, 경미한 부종·통증, 움직일 수 있음'],
+ care:['R 안정: 일어나거나 움직이지 않도록 함','I 냉찜질: 부종·통증 감소(1시간 간격 20분 정도)','C 압박: 탄력붕대로 적당한 강도로 압박·고정','E 거상: 손상 부위를 심장보다 높게','골절·탈구 의심 시 이동 전 부목 고정, 변형된 사지는 정복하지 말고 그 상태로 고정','부목 적용 후 말단부의 순환·감각·운동 확인'],
+ agent:['움직이지 않게 하고 쉬게 하기','냉찜질 20분 정도','다친 곳을 심장보다 높게','모양이 변했거나 심하게 붓고 움직이지 못하면 움직이지 않게 한 채 119 신고·관리자 보고'],
+ home:[L('다친 곳을 움직이지 말고 쉬게 해 주세요.','请让受伤的部位不要活动，好好休息。','Để chỗ bị thương nghỉ ngơi, không cử động.','Rest the injured part and avoid moving it.'),
+       L('다친 뒤 1~2일 동안 1시간 간격으로 20분 정도 냉찜질해 주세요.','受伤后1~2天内，每隔1小时冷敷约20分钟。','Trong 1–2 ngày sau khi bị thương, chườm lạnh khoảng 20 phút, cách nhau 1 tiếng.','For 1–2 days after the injury, apply a cold pack for about 20 minutes, with an hour between sessions.'),
+       L('다친 곳을 심장보다 높게 올려 붓기를 줄여 주세요.','把受伤部位抬高到比心脏高的位置，以减轻肿胀。','Kê chỗ bị thương cao hơn tim để giảm sưng.','Raise the injured part above heart level to reduce swelling.')],
+ hosp:[L('모양이 변했거나, 많이 붓고 아프거나, 움직이기 힘들면 병원에 가세요.','如果形状改变、肿得厉害且很痛，或难以活动，请去医院。','Nếu chỗ bị thương biến dạng, sưng và đau nhiều, hoặc khó cử động, hãy đưa con đến bệnh viện.','Go to a hospital if the part looks misshapen, is very swollen and painful, or is hard to move.')]},
+{id:'burn',em:'🔥',name:L('뜨거운 것에 데었어요','被烫伤了','Bị bỏng','Burn'),k:'화상',inner:false,
+ src:SRC_G+' Ⅶ 화상(p.39~40)',
+ E:['2도 이상의 중등도 화상(넓은 범위)','전기 화상 또는 화학물질 화상'],
+ U:['좁은 범위에 물집이 생긴 화상'],
+ N:['피부가 빨갛고 약한 통증, 물집 없음(1도)'],
+ care:['뜨거운 물에 젖은 옷은 벗기지 말고 가위로 제거','차가운 물로 충분히 식힘(흐르는 물에 20분 이상, 넓으면 저체온 주의)','식힌 뒤 조이는 옷이나 장신구 제거','소주·치약·연고 등은 바르지 않음','깨끗한 천이나 붕대로 느슨하게 감싼 뒤 병원 방문','물집 제거 금지, 얼음 직접 사용 금지, 민간요법 금지'],
+ agent:['흐르는 시원한 물에 20분 이상 식히기','물집은 터뜨리지 않기, 얼음 직접 대지 않기','아무것도 바르지 않고 깨끗한 천으로 느슨하게 덮기','넓은 화상·전기·화학물질 화상은 119 신고'],
+ home:[L('흐르는 시원한 물에 20분 이상 식혀 주세요.','请用流动的凉水冲洗冷却20分钟以上。','Làm mát vết bỏng dưới vòi nước mát ít nhất 20 phút.','Cool the burn under cool running water for at least 20 minutes.'),
+       L('물집은 터뜨리지 말고, 얼음을 직접 대지 마세요.','不要弄破水泡，也不要直接用冰块敷。','Không làm vỡ bọng nước và không chườm đá trực tiếp.','Do not pop blisters, and do not put ice directly on the burn.'),
+       L('된장·간장·소주·치약 같은 민간요법은 쓰지 마세요.','不要涂抹大酱、酱油、烧酒、牙膏等偏方。','Không dùng mẹo dân gian như tương, nước tương, rượu soju hay kem đánh răng.','Do not use home remedies such as soybean paste, soy sauce, alcohol, or toothpaste.')],
+ hosp:[L('물집이 생겼거나, 넓게 데었거나, 전기·화학물질에 의한 화상이면 병원에 가세요.','如果起了水泡、烫伤面积大，或是电或化学物质造成的烧伤，请去医院。','Nếu có bọng nước, bỏng rộng, hoặc bỏng do điện hay hóa chất, hãy đưa con đến bệnh viện.','Go to a hospital if there are blisters, the burn is large, or it was caused by electricity or chemicals.')]},
+{id:'bite',em:'🐝',name:L('벌레에 물렸어요','被虫子咬了','Bị côn trùng cắn','Bug bite or sting'),k:'벌레 물림·벌 쏘임',inner:false,
+ src:SRC_G+' Ⅹ 곤충 및 이물(p.48~49) · Ⅴ 아나필락시스(p.30~32)',
+ E:['전신 두드러기·가려움, 호흡곤란, 가슴 답답함, 어지러움','입술·혀·얼굴 부종이 심해짐','뱀에 물림'],
+ U:['개·고양이 등 동물이나 사람에게 물린 상처(작아도 병원 진료)'],
+ N:['약간의 부종·발적·가려움 등 국소 반응'],
+ care:['상처를 비누로 깨끗이 세척','부종이 심하면 냉찜질, 물린 부위를 심장보다 높게(뱀 교상 제외)','벌침은 카드 등으로 밀어서 즉시 제거 — 핀셋·손가락으로 집어 뽑기 금지','통증·가려움에 항히스타민제·스테로이드 크림 등 사용(보건교사 판단)','전신 반응 시 아나필락시스 응급처치(눕히고 119, 원인 제거, 처방된 에피네프린 자가주사, 다리 올리기)'],
+ agent:['물린 곳을 비누로 씻기','부으면 냉찜질하고 심장보다 높게','벌침은 카드로 밀어서 빼기(핀셋 금지)','온몸 두드러기·숨쉬기 힘듦·어지러움이 있으면 바로 119 신고'],
+ home:[L('물린 곳을 비누로 깨끗이 씻어 주세요.','请用肥皂把被咬的地方洗干净。','Rửa sạch chỗ bị cắn bằng xà phòng.','Wash the bite with soap and water.'),
+       L('부으면 냉찜질을 하고, 물린 곳을 심장보다 높게 해 주세요.','如果肿了，请冷敷，并把被咬的部位抬高到比心脏高。','Nếu sưng, chườm lạnh và kê chỗ bị cắn cao hơn tim.','If it swells, apply a cold pack and raise the area above heart level.'),
+       L('벌침이 남아 있으면 핀셋으로 집지 말고, 카드 같은 것으로 밀어서 빼 주세요.','如有蜂刺残留，不要用镊子夹，请用卡片等把它刮出来。','Nếu còn ngòi ong, không dùng nhíp gắp mà dùng thẻ cứng để gạt ra.','If a bee stinger remains, scrape it out with something like a card instead of using tweezers.')],
+ hosp:[L('온몸에 두드러기가 나거나, 숨쉬기 힘들거나, 가슴이 답답하거나 어지러우면 바로 119에 전화하세요.','如果全身起荨麻疹、呼吸困难、胸闷或头晕，请立即拨打119。','Nếu nổi mề đay khắp người, khó thở, tức ngực hoặc chóng mặt, hãy gọi 119 ngay.','Call 119 right away if there are hives all over, trouble breathing, chest tightness, or dizziness.'),
+       L('개·고양이 같은 동물에 물렸다면 상처가 작아도 병원에 가세요.','如果被狗、猫等动物咬伤，即使伤口很小也请去医院。','Nếu bị động vật như chó, mèo cắn, dù vết thương nhỏ cũng hãy đưa con đến bệnh viện.','If bitten by an animal such as a dog or cat, see a doctor even if the wound is small.')]},
+{id:'eye',em:'👁️',name:L('눈이 불편해요','眼睛不舒服','Mắt khó chịu','Eye problem'),k:'눈 불편·눈 부상',inner:false,
+ src:SRC_G+' ⅩⅣ 안면손상(눈 타박상)(p.62~64) · '+SRC_M+' 눈 부상(p.48) · '+SRC_I+' 안과감염병(p.42~45)',
+ E:['화학물질에 의한 눈 손상','관통상·찔림','시력 이상이나 소실','의식 상태 변화'],
+ U:['시력 이상 없는 둔기 손상(공 등에 맞음)','각막 찰과상 의심','물체가 두 개로 보임(복시)','1시간 이상 지속되는 이물감','눈의 통증'],
+ N:['눈 표면의 이물질','눈 주위 경미한 타박상·열상','충혈·눈곱(안과 감염병 여부 확인)'],
+ care:['손상된 눈을 비비거나 압박하지 않도록 함','화학물질: 수돗물·생리식염수로 눈 안쪽→바깥쪽 방향 20분 이상 세척, 중화 시도 금지, 119 기다리는 중에도 계속 세척','관통상: 물체는 빼지 말고 종이컵 등으로 보호, 다른 쪽 눈도 느슨하게 가림','타박상: 압력을 주지 않으며 냉찜질, 코를 풀지 않도록 함, 겉으로 괜찮아도 안과 진료 권고','이물질: 아래 눈꺼풀에 보이면 면봉으로 제거, 2번 시도 후 안 되면 생리식염수·물로 씻어냄','콘택트렌즈 제거 / 감염성 결막염 의심 시 손 씻기·개인용품 따로 쓰기 안내'],
+ agent:['눈을 비비거나 누르지 않게 하기','화학물질이 들어갔으면 흐르는 물로 20분 이상 씻으며 119 신고','박힌 물체는 빼지 말고 종이컵 등으로 덮어 보호','공 등에 맞았으면 누르지 말고 냉찜질, 보호자에게 안과 진료 안내'],
+ home:[L('눈을 비비거나 누르지 않게 해 주세요.','请不要让孩子揉眼睛或按压眼睛。','Không để con dụi hoặc ấn vào mắt.','Don\'t let your child rub or press the eye.'),
+       L('손을 자주 씻고, 수건·베개를 따로 쓰게 해 주세요.','请勤洗手，毛巾和枕头分开使用。','Cho con rửa tay thường xuyên và dùng khăn, gối riêng.','Wash hands often and use separate towels and pillows.')],
+ hosp:[L('공 등에 눈을 맞았다면 겉으로 괜찮아 보여도 안과 진료를 받아 주세요.','如果眼睛被球等击中，即使看起来没事，也请去眼科检查。','Nếu mắt bị bóng hoặc vật khác đập vào, dù trông có vẻ ổn, hãy cho con đi khám mắt.','If the eye was hit by a ball or similar object, see an eye doctor even if it looks fine.'),
+       L('물체가 두 개로 보이거나, 잘 안 보이거나, 눈이 많이 아프면 바로 병원에 가세요.','如果看东西有重影、看不清或眼睛很痛，请立即就医。','Nếu con nhìn thấy hai hình, nhìn không rõ hoặc đau mắt nhiều, hãy đưa con đến bệnh viện ngay.','Go to a hospital right away if your child sees double, can\'t see well, or has strong eye pain.')]},
+{id:'tooth',em:'🦷',name:L('이를 다쳤어요','牙齿受伤了','Bị thương ở răng','Hurt tooth'),k:'치아·턱 부상',inner:false,
+ src:SRC_M+' 치아 및 턱의 부상(p.49)',
+ E:['기도 폐쇄','의식 변화','다량 출혈','턱이나 다른 얼굴뼈 골절 의심'],
+ U:['여러 개 치아의 손상','영구치가 빠짐','영구치가 크게 부러짐','보철물 손상'],
+ N:['유치가 빠짐','잇몸 출혈','치아의 미세한 파손'],
+ care:['출혈 부위는 직접 압박으로 지혈, 통증·부종 완화를 위해 냉찜질','영구치가 빠지면 치근이 아닌 치관 부분을 잡음, 더러우면 우유나 생리식염수로 10초 이내 가볍게 헹굼','빠진 치아는 찬 우유 또는 생리식염수에 보관(찬 우유 > 생리식염수 > 침 > 물), 30분 이내 치과 후송(재이식은 60분 이내 성공률 높음)','살짝 빠진 치아는 절대로 밀어 넣지 말고 빠르게 치과 방문','미세 파손은 생리식염수로 헹구고 치과 진료 권유'],
+ agent:['피가 나는 곳을 거즈로 눌러 지혈하고 냉찜질','빠진 영구치는 머리 부분(치관)을 잡고 찬 우유에 담기','30분 안에 치과에 갈 수 있도록 보호자·관리자에게 바로 연락','살짝 빠진 이는 밀어 넣지 않기'],
+ home:[L('부은 곳은 냉찜질해 주세요.','肿起的地方请冷敷。','Chườm lạnh chỗ bị sưng.','Apply a cold pack to any swelling.'),
+       L('영구치가 빠지면 뿌리 말고 머리 부분을 잡고, 찬 우유에 담가 30분 안에 치과에 가세요.','如果恒牙掉了，请拿住牙冠（不要碰牙根），放入冷牛奶中，30分钟内去看牙医。','Nếu răng vĩnh viễn bị rụng, cầm phần thân răng (không chạm chân răng), ngâm vào sữa lạnh và đến nha sĩ trong vòng 30 phút.','If a permanent tooth is knocked out, hold it by the crown (not the root), put it in cold milk, and see a dentist within 30 minutes.')],
+ hosp:[L('이가 부러졌거나 흔들리거나 빠졌으면 빨리 치과에 가세요. 살짝 빠진 이는 억지로 밀어 넣지 마세요.','如果牙齿断了、松动或掉了，请尽快去看牙医。稍微脱出的牙齿不要硬推回去。','Nếu răng bị gãy, lung lay hoặc rụng, hãy đến nha sĩ sớm. Không tự ấn răng bị lệch vào lại.','See a dentist soon if a tooth is broken, loose, or knocked out. Do not push a partly loosened tooth back in yourself.')]}
+];
+var SYM_ORDER=null;
+var SYM_ROWS=[['headache','dizzy','fever'],['stomach','vomit','diarrhea'],['nose','wound','burn'],['sprain','bite','eye','tooth']];
+function symOrdered(){return [].concat.apply([],SYM_ROWS).map(symById);}
+function symById(id){for(var i=0;i<SYMS.length;i++)if(SYMS[i].id===id)return SYMS[i];return null;}
+
+/* 전체 응급 징후 (교사·대행자) */
+var GE=[
+ {id:'unresp',k:'의식이 없거나 깨워도 반응이 없음',card:'cpr'},
+ {id:'nobreath',k:'호흡이 없거나 비정상 호흡(매우 느리게 가끔 헐떡임)',card:'cpr'},
+ {id:'choke',k:'기도폐쇄 의심: 말·기침을 못 하고 목을 감싸 쥠',card:'choke'},
+ {id:'bleed',k:'지혈되지 않는 심한 출혈',card:'bleed'},
+ {id:'loc',k:'의식 변화(횡설수설, 혼자 서거나 걷지 못함)',card:'gen'},
+ {id:'seiz',k:'경련(발작)',card:'seiz'},
+ {id:'ana',k:'전신 두드러기·입술·얼굴 부종·호흡곤란(아나필락시스 의심)',card:'ana'},
+ {id:'chestp',k:'갑작스럽고 지속적인 가슴 통증',card:'gen'},
+ {id:'headinj',k:'머리 손상 후 구토·의식 변화',card:'head'},
+ {id:'fx',k:'개방골절·절단·사지 변형',card:'fx'},
+ {id:'chem',k:'눈의 화학물질 손상, 전기·화학 화상',card:'chem'}
+];
+var ECARDS={
+ gen:{t:'119 신고와 보고 (3C: Check → Call → Care)',s:[ '119 신고(스피커폰으로 상담원 지시에 따름)','학교 관리자(교감) 보고, 담임교사를 통해 보호자 연락','보건교사 도착 전까지 현장 안전 관리, 학생 곁을 지킴','119 도착 시 상황 인계, 응급환자 이송·사고 기록지 작성'],src:SRC_G+' 제1장 Ⅲ 대처요령(p.9~12)·부록 대응계획(p.69~71)'},
+ cpr:{t:'심폐소생술(CPR)·자동심장충격기(AED)',s:['현장 안전 확인 → 양쪽 어깨를 가볍게 두드리며 반응 확인','119 신고 및 자동심장충격기 요청, 스피커폰으로 상담원 지시에 따름','호흡 확인(5~10초): 호흡이 없거나 가끔 헐떡이면 심장정지로 판단','가슴압박: 가슴뼈 아래쪽 절반 / 만 8세 미만 4~5cm, 만 8세 이상 약 5cm(6cm 넘지 않게) / 분당 100~120회 / 압박 후 완전히 이완','교직원: 가슴압박 소생술 계속 / 보건교사: 가슴압박 30회 : 인공호흡 2회, 2분마다 역할 교대','AED 도착 즉시 전원 켜기 → 패드 부착(오른쪽 빗장뼈 아래, 왼쪽 젖꼭지 아래 겨드랑이선) → 분석·충격 시 모두 물러나기 → 즉시 가슴압박 재개'],src:SRC_G+' Ⅰ 심장정지(p.15~19), 원출처: 2020 한국 심폐소생술 가이드라인(질병관리청·대한심폐소생협회) — 개정 지침 발표 여부를 정기적으로 확인하세요'},
+ choke:{t:'기도폐쇄(질식)',s:['기침·말을 할 수 있으면(부분 폐쇄) 스스로 기침을 계속하도록 유도','말·기침을 못 하면(완전 폐쇄) 119 신고 요청','뒤에 서서 등 두드리기 5회(어깨뼈 사이를 손꿈치로 강하게)','효과가 없으면 복부 밀어내기(하임리히법) 5회 — 배꼽과 명치 중간, 후상방으로 강하게','의식을 잃으면 바닥에 눕히고 즉시 심폐소생술(입안에 이물질이 보일 때만 제거)'],src:SRC_G+' Ⅱ 기도폐쇄(p.22~23)'},
+ bleed:{t:'심한 출혈',s:['깨끗한 거즈로 상처를 직접 강하게 압박','거즈가 젖으면 떼지 말고 그 위에 덧대어 더 세게 압박','출혈 부위를 심장보다 높게 올림','눕히고 다리를 15~25cm 올림(쇼크 자세), 금식, 보온'],src:SRC_G+' Ⅵ 출혈 및 상처(p.36)'},
+ seiz:{t:'경련(발작)',s:['서 있거나 앉아 있으면 조심스럽게 바닥에 눕힘','주변의 위험한 물건을 치우고 머리 밑에 수건·옷을 깔아 줌','목 주위 옷·허리띠를 느슨하게, 몸을 옆으로 눕혀 기도 유지','발작 시작 시간을 확인하고 양상 관찰','억지로 붙잡거나 입안에 손가락·물건을 넣지 않음','5분 이상 지속되거나 반복되면 매우 위급 → 즉시 119','깨어날 때까지 혼자 두지 않고, 학생의 자존감을 배려'],src:SRC_G+' Ⅸ 경련(p.46~47)'},
+ ana:{t:'아나필락시스(중증 알레르기)',s:['편평한 곳에 눕히고 의식·맥박·호흡 확인','빨리 119 신고하고 주변에 도움 요청','알레르기 유발 물질(원인 물질) 제거',{med:true,x:'처방된 에피네프린 자가주사가 있으면 허벅지 바깥쪽에 근육주사(사전 보호자 동의·처방 의사 자문, 학교보건법 제15조의2)'},'머리는 가슴과 같은 높이, 다리는 올려 혈액순환 유지','2차 반응이 올 수 있으므로 신속히 병원 이송'],src:SRC_G+' Ⅴ 천식 및 아나필락시스(p.32)'},
+ head:{t:'머리·척추 손상',s:['움직이지 않도록 하고 반듯이 눕혀 목(경추) 고정','119 신고, 필요 시 심폐소생술','함몰된 머리 손상이 아니면 직접 압박으로 지혈','구토하면 몸 전체를 한 번에 옆으로 돌려 흡인 예방, 체온 유지'],src:SRC_M+' 머리와 척추의 손상(p.44)'},
+ fx:{t:'개방골절·절단·사지 변형',s:['일어서거나 움직이지 못하도록 함','변형된 사지는 바로잡으려 하지 말고 그 상태로 고정','개방된 상처는 깨끗하게 덮은 뒤 고정','절단 부위는 직접 압박 지혈, 절단된 조직은 생리식염수에 적셔 꼭 짠 거즈로 감싸 밀폐용기에 넣고 얼음물에(얼음 직접 접촉 금지)'],src:SRC_G+' Ⅺ 골절 및 외상(p.52)'},
+ chem:{t:'화학물질·전기 손상',s:['눈: 비비지 않게 하고 수돗물·생리식염수로 안쪽→바깥쪽 20분 이상 세척, 119를 기다리는 동안에도 계속','중화하려고 다른 약품을 쓰지 않음','전기 화상: 플러그를 뽑거나 전류를 먼저 차단(전기에 닿은 사람을 맨손으로 만지지 않음)','화학 화상: 흐르는 물로 충분히 씻어냄, 119 신고'],src:SRC_M+' 눈 부상(p.48) · '+SRC_G+' Ⅶ 화상(p.40)'}
+};
+
+var SEV={
+ 1:{n:'즉시 119',d:'119 신고 · 관리자 보고 · 담임 통해 보호자 연락',c:'red'},
+ 2:{n:'보호자 인계·진료 권고',d:'담임 통해 보호자 연락 → 병원 진료 또는 귀가',c:'amber'},
+ 3:{n:'처치 후 교실 복귀',d:'처치·관찰 후 교실 복귀, 필요 시 보호자 상담',c:'green'}
+};
+var ACTS=[
+ {id:'rest',ko:'보건실에서 쉬었어요.',zh:'在保健室休息了。',vi:'Con đã nghỉ ngơi tại phòng y tế.',en:'Rested in the nurse\'s office.'},
+ {id:'cold',ko:'냉찜질을 했어요.',zh:'做了冷敷。',vi:'Đã chườm lạnh.',en:'Applied a cold pack.'},
+ {id:'clean',ko:'상처를 깨끗하게 하고 밴드를 붙였어요.',zh:'清洁了伤口并贴了创可贴。',vi:'Đã rửa sạch vết thương và dán băng.',en:'Cleaned the wound and put on a bandage.'},
+ {id:'press',ko:'눌러서 피를 멈췄어요.',zh:'按压止血了。',vi:'Đã ấn để cầm máu.',en:'Stopped the bleeding with pressure.'},
+ {id:'cool',ko:'흐르는 물로 식혔어요.',zh:'用流动的水冷却了。',vi:'Đã làm mát bằng nước chảy.',en:'Cooled with running water.'},
+ {id:'obs',ko:'상태를 지켜본 뒤 교실로 돌아갔어요.',zh:'观察后回到了教室。',vi:'Đã theo dõi rồi cho con về lớp.',en:'Watched closely, then returned to class.'},
+ {id:'home',ko:'보호자께 연락하여 귀가했어요.',zh:'联系家长后回家了。',vi:'Đã liên lạc phụ huynh và cho con về nhà.',en:'Contacted a parent and went home.'},
+ {id:'hosp',ko:'병원 진료를 권해 드려요.',zh:'建议去医院就诊。',vi:'Nhà trường khuyên đưa con đi khám bác sĩ.',en:'We recommend seeing a doctor.'},
+ {id:'119',ko:'119 구급차로 병원에 갔어요.',zh:'乘坐119救护车去了医院。',vi:'Con đã được đưa đến bệnh viện bằng xe cấp cứu 119.',en:'Taken to hospital by ambulance (119).'}
+];
+var LT={
+ ko:{title:'보건실 이용 및 가정 관리 안내',greet:'보호자님, 안녕하세요. 오늘 자녀가 보건실을 방문하여 안내해 드립니다.',date:'날짜',sym:'불편했던 점',did:'학교에서 한 조치',home:'집에서 이렇게 돌봐 주세요',hosp:'이럴 때는 병원에 가세요',em:'숨쉬기 힘들거나 의식이 흐려지는 등 위급할 때는 바로 119에 전화하세요.',close:'궁금한 점은 담임 선생님께 연락해 주세요.',office:'보건실'},
+ zh:{title:'保健室就诊及家庭护理说明',greet:'家长您好。今天您的孩子去了学校保健室，特此告知。',date:'日期',sym:'不适症状',did:'学校采取的措施',home:'在家请这样照顾',hosp:'出现以下情况请去医院',em:'如出现呼吸困难、意识模糊等紧急情况，请立即拨打119。',close:'如有疑问，请联系班主任。',office:'保健室'},
+ vi:{title:'Thông báo về việc đến phòng y tế và chăm sóc tại nhà',greet:'Kính gửi quý phụ huynh. Hôm nay con của quý vị đã đến phòng y tế của trường, nhà trường xin thông báo như sau.',date:'Ngày',sym:'Triệu chứng',did:'Nhà trường đã xử lý',home:'Chăm sóc tại nhà',hosp:'Hãy đưa con đến bệnh viện khi',em:'Khi khẩn cấp như khó thở hoặc lơ mơ, hãy gọi ngay 119.',close:'Nếu có thắc mắc, xin liên hệ giáo viên chủ nhiệm.',office:'Phòng y tế'},
+ en:{title:'School Nurse Visit & Home Care Notice',greet:'Dear parent/guardian, your child visited the school nurse\'s office today. Please see the details below.',date:'Date',sym:'Symptoms',did:'What we did at school',home:'Home care',hosp:'See a doctor if',em:'In an emergency, such as trouble breathing or confusion, call 119 right away.',close:'If you have questions, please contact your child\'s homeroom teacher.',office:'School Nurse\'s Office'}
+};
+var MEDCHECK=['사용하려는 약이 맞는지, 증상에 맞는지(효능·효과), 사용해도 되는지(주의사항), 용량·용법을 포장·첨부문서에서 확인','가장 심한 증상 1~2개를 파악하여 소량 투여','약 부작용 경험, 현재 다른 질병, 복용 중인 약 확인','충분한 물과 함께 복용, 보건교사가 직접 투여하고 복용 확인(다른 학생 편에 전달 금지)','투약 후 20~30분 뒤 효과가 나타남을 설명, 알레르기 증상 발현 시 즉시 알리도록 지도','투약 내용을 보건일지에 기록'];
+var AGENT_NOTE=['업무대행자는 의료인이 아니므로 단순 외상 처치를 담당하고, 내과적 증상은 담임교사를 통해 보호자에게 인계합니다.','긴급 이송이 필요하면 119에 먼저 연락하고, 관리자·보호자에게 즉시 상황을 보고합니다.','투약은 하지 않습니다.'];
+var PROTECT_STEPS=['학생을 안전하고 조용한 곳에서 보호하고 혼자 두지 않기 — 캐묻지 말고 학생이 말한 내용만 그대로 기록','학교 관리자(교감·교장)에게 즉시 보고','상담 연계: Wee클래스·전문상담교사','학교폭력이 의심되면 학교폭력 신고·처리 절차에 따름(학교폭력 신고 117)','아동학대가 의심되면 112 신고 — 교원은 아동학대 신고의무자(아동학대범죄의 처벌 등에 관한 특례법 제10조)','자해·자살 위험이 의심되면 즉시 관리자 보고 및 학교 위기대응 절차, 자살예방상담전화 109(24시간)'];
+
+/* ---------- 상태 ---------- */
+var state={view:'home',auth:null,tab:'case',tid:null,sid:null,bodyView:'front',statPeriod:'month',hint:'',lastAct:0,lastInput:Date.now()};
+function cases(){return store.get('cases',[]);}
+function saveCases(arr){store.set('cases',arr);}
+function getCase(id){var a=cases();for(var i=0;i<a.length;i++)if(a[i].id===id)return a[i];return null;}
+function putCase(c){var a=cases(),f=false;for(var i=0;i<a.length;i++)if(a[i].id===c.id){a[i]=c;f=true;}if(!f)a.push(c);if(a.length>30)a=a.slice(a.length-30);saveCases(a);}
+function delCase(id){saveCases(cases().filter(function(c){return c.id!==id;}));if(state.tid===id)state.tid=null;if(state.sid===id)state.sid=null;}
+function newCase(fromStudent){return {id:uid(),created:Date.now(),lang:'ko',step:fromStudent?'lang':'done',student:!!fromStudent,done:!fromStudent,
+  emerg:[],parts:[],unsure:false,syms:[],stype:[],pain:null,ps:10,hosp:'',med:[],when:'',cause:'',mind:'',
+  t:{g:[],ck:{},temp:'',sev:0,acts:[],ll:null,unlock:false,reported:false,saved:false,grade:'',cls:'',no:''}};}
+function settings(){return store.get('settings',{school:'',pinT:'',pinA:''});}
+function isProtect(c){return c.cause==='other'||c.mind==='hard';}
+
+/* ---------- 유틸: 토스트·모달 ---------- */
+var toastTimer=null;
+function toast(msg){var r=$('#toastRoot');r.innerHTML='<div class="toast">'+esc(msg)+'</div>';clearTimeout(toastTimer);toastTimer=setTimeout(function(){r.innerHTML='';},3200);}
+var modalOnOk=null,lastFocus=null;
+function openModal(html,onMount){lastFocus=document.activeElement;$('#modalRoot').innerHTML='<div class="modalbg" data-act="modalBg"><div class="modal" role="dialog" aria-modal="true">'+html+'</div></div>';
+  var f=$('#modalRoot input, #modalRoot select, #modalRoot textarea, #modalRoot button');if(onMount)onMount();if(f)f.focus();}
+function closeModal(){$('#modalRoot').innerHTML='';modalOnOk=null;if(lastFocus&&lastFocus.focus){try{lastFocus.focus({preventScroll:true});}catch(e){}}}
+function confirmBox(title,body,okLabel,danger,cb){modalOnOk=cb;openModal('<h2>'+esc(title)+'</h2><div>'+body+'</div><div class="row end" style="margin-top:18px"><button class="btn" data-act="modalClose">취소</button><button class="btn '+(danger?'red':'pri')+'" data-act="modalOk">'+esc(okLabel)+'</button></div>');}
+
+/* ---------- PIN (간단 해시: 기기 내 화면 잠금 용도) ---------- */
+function hashPin(p){var h=2166136261;var s='bodeumi#'+p;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)>>>0;}return h.toString(16);}
+var pinFail={n:0,until:0};
+function askPin(role){
+  var s=settings();
+  if(!s.pinT){ // 최초 설정
+    openModal('<h2>처음 사용 설정</h2><p class="small muted">보건교사 화면을 잠글 숫자 4자리를 정해 주세요. 학생이 보건교사 화면을 열지 못하게 합니다.</p>'+
+     '<div class="field"><label for="p1">보건교사 PIN (숫자 4자리)</label><input id="p1" class="pinin" type="password" inputmode="numeric" maxlength="4" autocomplete="off"></div>'+
+     '<div class="field" style="margin-top:10px"><label for="p2">한 번 더 입력</label><input id="p2" class="pinin" type="password" inputmode="numeric" maxlength="4" autocomplete="off"></div>'+
+     '<div class="field" style="margin-top:10px"><label for="p3">업무대행자 PIN (선택, 숫자 4자리)</label><input id="p3" class="pinin" type="password" inputmode="numeric" maxlength="4" autocomplete="off"></div>'+
+     '<p class="hint" id="pinMsg"></p><div class="row end"><button class="btn" data-act="modalClose">취소</button><button class="btn pri" data-act="pinSetup" data-role="'+role+'">저장하고 열기</button></div>');
+    return;
+  }
+  if(role==='agent'&&!s.pinA){
+    openModal('<h2>업무대행자 화면</h2><p>업무대행자 PIN이 아직 없어요. 보건교사가 <b>보건교사 화면 → 관리</b>에서 먼저 정해 주세요.</p><p class="small muted">보건교사 PIN으로도 열 수 있어요.</p>'+
+     pinField()+'<p class="hint" id="pinMsg"></p><div class="row end"><button class="btn" data-act="modalClose">닫기</button><button class="btn pri" data-act="pinCheck" data-role="agent">열기</button></div>');return;
+  }
+  openModal('<h2>'+(role==='teacher'?'보건교사 화면 열기':'업무대행자 화면 열기')+'</h2>'+pinField()+'<p class="hint" id="pinMsg"></p><div class="row end"><button class="btn" data-act="modalClose">취소</button><button class="btn pri" data-act="pinCheck" data-role="'+role+'">열기</button></div>');
+}
+function pinField(){return '<div class="field"><label for="pin">PIN 숫자 4자리</label><input id="pin" class="pinin" type="password" inputmode="numeric" maxlength="4" autocomplete="off"></div>';}
+function validPin(p){return /^[0-9]{4}$/.test(p);}
+
+/* ---------- 음성 (기기 TTS) ---------- */
+var voiceMissing={};
+function hasSpeech(){return typeof window.speechSynthesis!=='undefined'&&typeof window.SpeechSynthesisUtterance!=='undefined';}
+function findVoice(code){if(!hasSpeech())return null;var vs=[];try{vs=window.speechSynthesis.getVoices()||[];}catch(e){}if(!vs.length)return undefined;
+  var tts=langInfo(code).tts.toLowerCase();var pre=code.toLowerCase();var best=null;
+  for(var i=0;i<vs.length;i++){var vl=String(vs[i].lang||'').replace('_','-').toLowerCase();if(vl===tts)return vs[i];if(!best&&vl.indexOf(pre)===0)best=vs[i];}return best;}
+function speak(text,code){
+  if(!hasSpeech()){voiceMissing[code]=true;render();return;}
+  var v=findVoice(code);
+  if(v===null){voiceMissing[code]=true;render();return;}
+  try{window.speechSynthesis.cancel();var u=new SpeechSynthesisUtterance(text);u.lang=langInfo(code).tts;if(v)u.voice=v;u.rate=0.9;
+    u.onerror=function(){};window.speechSynthesis.speak(u);}catch(e){voiceMissing[code]=true;render();}
+}
+if(hasSpeech()){try{window.speechSynthesis.onvoiceschanged=function(){};window.speechSynthesis.getVoices();}catch(e){}}
+
+/* ---------- 그림 (코드로 직접 그린 SVG) ---------- */
+function logoSVG(sz){return '<svg width="'+sz+'" height="'+sz+'" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="19" fill="#fff"/><path d="M20 31s-10-6.2-10-13.2C10 13.6 13 11 16.3 11c1.6 0 2.9.8 3.7 2 .8-1.2 2.1-2 3.7-2C27 11 30 13.6 30 17.8 30 24.8 20 31 20 31z" fill="#E8695A"/><rect x="18.4" y="15" width="3.2" height="10" rx="1" fill="#fff"/><rect x="15" y="18.4" width="10" height="3.2" rx="1" fill="#fff"/></svg>';}
+function bodySVG(view,sel,lang){
+  var front=view==='front';
+  var VL=front?'_r':'_l',VR=front?'_l':'_r'; // 앞모습: 화면 왼쪽 = 학생의 오른쪽
+  function g(id,shape){var on=sel.indexOf(id)>=0;return '<g class="part'+(on?' sel':'')+'" data-act="part" data-id="'+id+'" role="button" tabindex="0" aria-pressed="'+on+'" aria-label="'+esc(partStu(id,lang)+(/_[lr]$/.test(id)?' ('+SIDE[id.slice(-1)][lang]+')':''))+'">'+shape+'</g>';}
+  function mir(x){return (240-x).toFixed(1);}
+  // 팔·다리 (화면 왼쪽 기준 좌표, 오른쪽은 좌우 반전)
+  function arm(side){var L=side==='L',sx=function(x){return L?x:+mir(x);},rot=L?11:-11,id=L?VL:VR;
+    return g('uarm'+id,'<rect class="shp shirt" x="'+(sx(60)-17)+'" y="114" width="34" height="68" rx="16" transform="rotate('+rot+' '+sx(60)+' 148)"/>')+
+           g('farm'+id,'<rect class="shp skin" x="'+(sx(47.5)-14.5)+'" y="183" width="29" height="64" rx="14" transform="rotate('+rot+' '+sx(47.5)+' 215)"/>')+
+           g('hand'+id,'<ellipse class="shp skin" cx="'+sx(41)+'" cy="261" rx="14" ry="16" transform="rotate('+rot+' '+sx(41)+' 261)"/>');}
+  function leg(side){var L=side==='L',x0=L?82:122,id=L?VL:VR;
+    return g('thigh'+id,'<path class="shp pants" d="M'+x0+' 250 h36 v62 q0 10 -10 10 h-16 q-10 0 -10 -10z"/>')+
+           g('shin'+id,'<rect class="shp skin" x="'+(x0+4)+'" y="324" width="28" height="70" rx="13"/>')+
+           g('foot'+id,'<path class="shp shoe" d="M'+(L?x0-8:x0+2)+' 400 q0 -10 12 -10 h18 q12 0 12 10 v4 q0 8 -10 8 h-24 q-8 0 -8 -8z"/>');}
+  var s='<svg viewBox="0 0 240 446" role="group" aria-label="'+esc(T[lang].qBody)+'">';
+  s+='<defs><clipPath id="bellyClip"><path d="M80 182 H160 L161 238 Q161 256 143 256 H97 Q79 256 79 238 Z"/></clipPath></defs>';
+  s+=leg('L')+leg('R')+arm('L')+arm('R');
+  s+=g('neck','<rect class="shp skin" x="110" y="86" width="20" height="24" rx="7"/>');
+  s+=g(front?'chest':'back','<path class="shp shirt" d="M80 182 V132 Q80 108 104 106 Q120 116 136 106 Q160 108 160 132 V182 Z"/>');
+  if(front){
+    s+='<g clip-path="url(#bellyClip)">';
+    var cw=82/3,ch=74/3;
+    for(var r=0;r<3;r++)for(var c=0;c<3;c++){var code=BELLY_GRID[r][c];
+      s+=g('b_'+code,'<rect class="shp shirt cell" x="'+(79+cw*c).toFixed(2)+'" y="'+(182+ch*r).toFixed(2)+'" width="'+cw.toFixed(2)+'" height="'+ch.toFixed(2)+'"/>');}
+    s+='</g><path d="M80 182 H160 L161 238 Q161 256 143 256 H97 Q79 256 79 238 Z" fill="none" stroke="#5E7590" stroke-width="2" pointer-events="none"/>';
+    s+='<circle cx="120" cy="219" r="2.8" fill="#5E7590" pointer-events="none"/>';
+    s+='<path d="M104 106 Q120 118 136 106" fill="none" stroke="#5E7590" stroke-width="2" pointer-events="none"/>'; // 옷깃
+  } else {
+    s+=g('waist','<path class="shp shirt" d="M80 182 H160 L161 238 Q161 256 143 256 H97 Q79 256 79 238 Z"/>');
+    s+='<path d="M120 112 V176" stroke="#5E7590" stroke-width="1.6" stroke-dasharray="3 5" pointer-events="none"/>';
+  }
+  // 머리
+  s+=g('head','<circle class="shp skin" cx="85" cy="58" r="8"/><circle class="shp skin" cx="155" cy="58" r="8"/><circle class="shp skin" cx="120" cy="54" r="36"/>');
+  if(front){
+    s+='<g pointer-events="none"><path d="M84 52 Q84 16 120 16 Q156 16 156 52 Q150 34 132 30 Q122 40 100 38 Q90 40 84 52z" fill="#4A3426"/>'+
+       '<circle cx="107" cy="56" r="3.6" fill="#3A2A20"/><circle cx="133" cy="56" r="3.6" fill="#3A2A20"/>'+
+       '<circle cx="100" cy="67" r="5" fill="#F4A6A0" opacity=".6"/><circle cx="140" cy="67" r="5" fill="#F4A6A0" opacity=".6"/>'+
+       '<path d="M110 71 Q120 79 130 71" fill="none" stroke="#3A2A20" stroke-width="3" stroke-linecap="round"/></g>';
+  } else {
+    s+='<path pointer-events="none" d="M84 56 Q82 16 120 16 Q158 16 156 56 Q154 78 140 86 Q120 92 100 86 Q86 78 84 56z" fill="#4A3426"/>';
+  }
+  var lt=front?SIDE.r[lang]:SIDE.l[lang],rt=front?SIDE.l[lang]:SIDE.r[lang];
+  s+='<g pointer-events="none" font-size="15" font-weight="700" fill="#45524F"><text x="34" y="440" text-anchor="middle">'+esc(lt)+'</text><text x="206" y="440" text-anchor="middle">'+esc(rt)+'</text></g>';
+  return s+'</svg>';
+}
+function bellyPanel(sel,lang){
+  var tt={ko:'배가 아프면 여기서 크게 골라요',zh:'肚子痛，请在这里选',vi:'Nếu đau bụng, hãy chọn ở đây',en:'If your tummy hurts, choose here'}[lang];
+  var h='<div class="bellybox"><h2 style="font-size:21px">'+esc(tt)+'</h2><div class="bellyside"><span>'+esc(SIDE.r[lang])+'</span><span>'+esc(SIDE.l[lang])+'</span></div><div class="bellygrid">';
+  for(var r=0;r<3;r++)for(var c=0;c<3;c++){var id='b_'+BELLY_GRID[r][c],on=sel.indexOf(id)>=0;
+    h+='<button class="bcell" aria-pressed="'+on+'" data-act="part" data-id="'+id+'" aria-label="'+esc(partStu(id,lang))+'">'+(id==='b_cm'?'<span class="navel" aria-hidden="true"></span>':'')+'</button>';}
+  return h+'</div></div>';
+}
+function faceSVG(k){ // k: 0~5 (0점·2점·4점·6점·8점·10점)
+  var col=['#BFE6C9','#DCEFB8','#F2E39A','#F8C98A','#F3A07E','#EC7F7F'][k];
+  var mouth=['M27 54 Q40 68 53 54','M30 58 Q40 64 50 58','M30 60 H50','M30 63 Q40 56 50 63','M28 65 Q40 52 52 65','M27 67 Q40 50 53 67'][k];
+  var brows=k>=4?'<path d="M24 30 L34 34 M56 30 L46 34" stroke="#3A2A20" stroke-width="3" stroke-linecap="round"/>':(k===3?'<path d="M25 33 L34 32 M55 33 L46 32" stroke="#3A2A20" stroke-width="3" stroke-linecap="round"/>':'');
+  var tears=k===5?'<path d="M28 46 q-3 7 0 9 q3 -2 0 -9z M52 46 q-3 7 0 9 q3 -2 0 -9z" fill="#4A90D9"/>':'';
+  var eyes=k>=4?'<path d="M26 40 Q31 36 36 40 M44 40 Q49 36 54 40" stroke="#3A2A20" stroke-width="3" fill="none" stroke-linecap="round"/>':'<circle cx="31" cy="40" r="3.5" fill="#3A2A20"/><circle cx="49" cy="40" r="3.5" fill="#3A2A20"/>';
+  return '<svg viewBox="0 0 80 80" aria-hidden="true"><circle cx="40" cy="40" r="36" fill="'+col+'" stroke="#3A2A20" stroke-width="2.5"/>'+brows+eyes+tears+'<path d="'+mouth+'" stroke="#3A2A20" stroke-width="3.5" fill="none" stroke-linecap="round"/></svg>';
+}
+
+/* ---------- 판단 도우미 ---------- */
+function warnings(c){
+  var w=[],P=c.parts,S=c.syms,has=function(a,x){return a.indexOf(x)>=0;};
+  var injury=['fall','sport','other'].indexOf(c.cause)>=0;
+  var anyPart=function(b){for(var i=0;i<P.length;i++)if(partGroup(P[i])===b)return true;return false;};
+  if(c.emerg.length)w.push(['red','학생이 응급 징후를 골랐어요: '+c.emerg.map(function(e){return findBy(EMERG,e).k;}).join(', ')+' → ① 응급 징후 확인부터 하세요.']);
+  if((anyPart('head')||has(S,'headache'))&&injury)w.push(['amber','머리를 부딪혔을 가능성 → 구토·의식 변화·경련 여부 확인(머리 손상)']);
+  if(has(S,'stomach')&&has(S,'fever')&&(has(S,'vomit')||has(S,'diarrhea')))w.push(['amber','복통·발열·구토(설사)가 함께 있음 → 긴급 사정 필요']);
+  if(has(S,'fever')&&has(S,'headache')&&anyPart('neck'))w.push(['amber','발열·두통·목 통증 → 목 경직 여부 확인']);
+  if(has(P,'b_rl')&&(has(S,'stomach')||painVal(c)>=6))w.push(['amber','오른쪽 아랫배 통증 → 통증 이동(배꼽 주위→오른쪽 아래)·발열·구토 여부 확인, 지속되면 병원 진료 의뢰']);
+  if(anyPart('belly')&&!has(S,'stomach')&&c.syms.length)w.push(['info','배 부위를 골랐어요 → 복통 체크리스트가 필요하면 [증상 추가·변경]에서 복통을 추가하세요.']);
+  var ST=stypeOf(c);
+  if(has(ST,'sudden')&&painVal(c)>=8)w.push(['amber','갑작스럽고 심한 복통 → 극심한 복통 징후(얼굴 창백·빈맥·식은땀) 확인']);
+  if(has(ST,'move'))w.push(['amber','움직이거나 누르면 더 아픈 복통 → 반발통·복부 팽만·강직 여부 확인']);
+  if(has(ST,'constant')&&(c.when==='yday'||c.when==='long'))w.push(['amber','하루 이상 계속되는 복통 → 발열·구토·설사 동반 여부 확인, 병원 진료 고려']);
+  if(has(ST,'burn'))w.push(['info','속쓰림 호소 → 식사 여부·식습관 확인']);
+  if(has(ST,'gurgle'))w.push(['info','부글거림 호소 → 설사·가스·최근 먹은 음식 확인']);
+  var MD=medOf(c);
+  if(has(MD,'today'))w.push(['amber','오늘 약을 먹고 등교 → 약 이름·복용 시각을 확인하고, 보건실 투약 시 같은 성분 중복에 주의']);
+  if(has(MD,'daily'))w.push(['info','매일 복용하는 약 있음 → 약 이름·복용 이유(관리 중인 질환) 확인, 건강조사서·요양호 학생 명단 대조']);
+  if(c.hosp==='yes')w.push(['info','이번 증상으로 병원 진료 받음 → 진료 결과·처방·학교생활 주의사항을 학생·보호자에게 확인']);
+  if(anyPart('chest'))w.push(['amber','가슴 부위 통증 → 흉통 양상·지속 시간 확인']);
+  if(has(S,'eye')&&injury)w.push(['amber','눈 외상 가능성 → 시력 변화·복시 확인, 안과 진료 고려']);
+  if(has(S,'tooth')&&injury)w.push(['amber','치아 외상 → 영구치 여부 확인(빠진 영구치는 30분 이내 치과)']);
+  if(has(S,'bite'))w.push(['info','벌레 물림 → 전신 두드러기·호흡곤란 여부 확인']);
+  if(painVal(c)>=8)w.push(['amber','통증 '+painVal(c)+'/10 ('+painLabel(painVal(c))+') 호소 → 재사정 권장']);
+  if(c.when==='yday'||c.when==='long')w.push(['info','증상이 하루 이상 지속 → 경과·복약 여부 확인']);
+  return w;
+}
+function recommend(c){
+  var r=[],lvl=3,basis=false,t=c.t;
+  if(c.emerg.length){lvl=1;basis=true;r.push('학생 응답 응급 징후: '+c.emerg.map(function(e){return findBy(EMERG,e).k;}).join(', '));}
+  t.g.forEach(function(id){var g=findBy(GE,id);if(g){lvl=1;basis=true;r.push('응급 징후: '+g.k);}});
+  c.syms.forEach(function(sid){var s=symById(sid);if(!s)return;(t.ck[sid]||[]).forEach(function(key){var p=key.split(':'),tier=p[0],txt=(s[tier]||[])[+p[1]];if(!txt)return;basis=true;
+    if(tier==='E'){lvl=1;r.push('['+s.k+'] 응급: '+txt);}else if(tier==='U'){if(lvl>2)lvl=2;r.push('['+s.k+'] 긴급: '+txt);}});});
+  var tp=parseFloat(t.temp);if(!isNaN(tp)){basis=true;if(tp>=40){lvl=1;r.push('체온 '+tp+'℃ (40℃ 이상)');}else if(tp>=38){if(lvl>2)lvl=2;r.push('체온 '+tp+'℃ (38℃ 이상)');}}
+  return {lvl:lvl,reasons:r,basis:basis};
+}
+
+/* ---------- 렌더링 ---------- */
+function renderTop(){
+  var m={home:'',student:'학생 문진',teacher:'보건교사',agent:'업무대행자'}[state.view];
+  var h='<div class="brand">'+logoSVG(36)+'<span>보듬이</span></div>'+(m?'<span class="mode">'+m+'</span>':'')+'<span class="sp"></span>';
+  if(state.view!=='home')h+='<button class="btn sm" data-act="goHome">🏠 처음 화면</button>';
+  if(state.auth)h+='<button class="btn sm lock" data-act="lock">🔒 잠그기</button>';
+  $('#topbar').innerHTML=h;
+}
+function render(){
+  var y=window.scrollY,aid=document.activeElement&&document.activeElement.id;
+  renderTop();
+  var app=$('#app'),h='';
+  if(state.view==='home')h=renderHome();
+  else if(state.view==='student')h=renderStudent();
+  else if(state.view==='teacher')h=renderTeacher();
+  else if(state.view==='agent')h=renderAgent();
+  app.innerHTML=h;
+  if(state.keepScroll){window.scrollTo(0,y);state.keepScroll=false;}else window.scrollTo(0,0);
+  if(aid){var el=document.getElementById(aid);if(el){try{el.focus({preventScroll:true});}catch(e){}}}
+}
+
+function renderHome(){
+  var inprog=cases().filter(function(c){return c.student&&!c.done;});
+  var h='<section class="hero"><h1>보건실 건강사정 도우미 <span style="color:var(--pri)">보듬이</span></h1>'+
+   '<div class="howto"><b>학생</b>은 [학생 문진 시작]을 눌러 그림으로 아픈 곳을 알려 주세요.<br><b>선생님</b>은 학생이 끝내면 [보건교사] 또는 [업무대행자]를 눌러 확인하세요.</div></section>';
+  if(inprog.length){var last=inprog[inprog.length-1];
+    h+='<div class="card narrow"><div class="row between"><div><b>하던 문진이 있어요.</b> <span class="muted small">('+fmtTime(last.created)+' 시작)</span></div><div class="row"><button class="btn pri" data-act="resume" data-id="'+last.id+'">이어서 하기</button><button class="btn" data-act="discardResume" data-id="'+last.id+'">지우고 새로 하기</button></div></div></div>';}
+  h+='<div class="homegrid">'+
+   '<button class="homebtn stu" data-act="startStudent"><span class="ic">🧒</span>학생 문진 시작<span class="sub">한국어 · 中文 · Tiếng Việt · English</span></button>'+
+   '<button class="homebtn" data-act="openTeacher"><span class="ic">🩺</span>보건교사<span class="sub">요약 · 건강사정 · 처치 · 안내문 · 기록</span></button>'+
+   '<button class="homebtn" data-act="openAgent"><span class="ic">🧑‍🏫</span>업무대행자<span class="sub">보건교사 부재 시 · 기본 처치까지</span></button></div>';
+  var pend=cases().filter(function(c){return c.done&&!c.t.saved;}).length;
+  if(pend)h+='<p class="notice"><b>보건교사 확인을 기다리는 문진: '+pend+'건</b></p>';
+  h+='<p class="notice">🔒 이름·연락처·사진은 받지 않아요. 모든 기록은 이 기기 안에만 저장되고 학교 밖으로 나가지 않아요.<br>⚠️ 진단 도구가 아니에요. 최종 판단은 보건교사가 하고, 위급하면 바로 119에 신고하세요.</p>';
+  return h;
+}
+
+/* --- 학생 --- */
+var STEPS_ALL=['emerg','gc','body','sym','stype','pain','when','cause','hosp','med'];
+function needsHosp(c){return c.when==='yday'||c.when==='long';}
+function gcLabel(c){var t=c.t;return (t.grade?t.grade+'학년 ':'')+(t.cls?t.cls+'반':'');}
+function gcFields(c,pre){var t=c.t;
+  return '<div class="row" style="margin:4px 0 12px;gap:10px">'+
+   '<div class="field" style="flex:1;min-width:110px"><label for="'+pre+'G">학년</label><select id="'+pre+'G" data-chg="gc" data-f="grade"><option value="">선택</option>'+[1,2,3,4,5,6].map(function(n){return '<option value="'+n+'"'+(String(t.grade)===String(n)?' selected':'')+'>'+n+'학년</option>';}).join('')+'</select></div>'+
+   '<div class="field" style="flex:1;min-width:110px"><label for="'+pre+'C">반</label><select id="'+pre+'C" data-chg="gc" data-f="cls"><option value="">선택</option>'+Array.apply(null,{length:Math.max(classCount(),parseInt(t.cls,10)||0)}).map(function(_,i){var n=i+1;return '<option value="'+n+'"'+(String(t.cls)===String(n)?' selected':'')+'>'+n+'반</option>';}).join('')+'</select></div></div>';}
+function hospText(c){return c.hosp?findBy(HOSP,c.hosp).k:(c.when&&!needsHosp(c)?'묻지 않음(오늘 시작)':'—');}
+function medOf(c){return c.med||[];}
+function stepsFor(c){return STEPS_ALL.filter(function(x){if(x==='stype')return c.syms.indexOf('stomach')>=0;if(x==='pain')return needsPain(c);if(x==='hosp')return needsHosp(c);return true;});}
+function stypeOf(c){return c.stype||[];}
+function gNum(n,l){return {ko:n+'학년',zh:n+'年级',vi:'Khối '+n,en:'Grade '+n}[l];}
+function cNum(n,l){return {ko:n+'반',zh:n+'班',vi:'Lớp '+n,en:'Class '+n}[l];}
+function classCount(){var n=parseInt(settings().classes,10);return n>=1&&n<=20?n:10;}
+function stuQ(c){var l=c.lang,tt=T[l];return {emerg:tt.qEmerg,gc:tt.qGc,body:tt.qBody,sym:tt.qSym,stype:tt.qStype,pain:tt.qPain,when:tt.qWhen,cause:tt.qCause,hosp:tt.qHosp,med:tt.qMed}[c.step];}
+function renderStudent(){
+  var c=getCase(state.sid);if(!c){state.view='home';return renderHome();}
+  var l=c.lang,tt=T[l],h='<div class="stu">';
+  if(c.step==='lang'){
+    h+='<div class="langtitle" >'+LANGS.map(function(x){return '<span lang="'+x.code+'">'+esc(T[x.code].chooseLang)+'</span>';}).join(' · ')+'</div><div class="langgrid">'+
+      LANGS.map(function(x){return '<button class="langbtn" lang="'+x.code+'" data-act="setLang" data-l="'+x.code+'">'+esc(x.name)+'</button>';}).join('')+'</div>';
+    return h+'</div>';
+  }
+  if(c.step==='stop'){
+    h+='<div class="stopbox" lang="'+l+'"><div style="font-size:70px">🚨</div><h1>'+esc(tt.stopT)+'</h1><p>'+esc(tt.stopB)+'</p>'+
+      '<button class="btn big listen" data-act="say" data-k="stop">'+esc(tt.listen)+'</button></div>'+voiceNote(l)+
+      '<p class="adultnote" lang="ko">어른께: 학생이 응급 징후를 골랐어요. 바로 학생 상태를 확인하고 필요하면 119에 신고하세요.</p>'+
+      '<div class="row" style="justify-content:center;margin-top:14px"><button class="btn big red" data-act="openTeacher">🩺 보건교사 화면</button><button class="btn big" data-act="openAgent">🧑‍🏫 업무대행자 화면</button></div>';
+    return h+'</div>';
+  }
+  if(c.step==='done'){
+    h+='<div class="donebox" lang="'+l+'"><div style="font-size:70px">👍</div><h1>'+esc(tt.doneT)+'</h1><p style="font-size:22px;font-weight:700">'+esc(tt.doneB)+'</p>'+
+      '<button class="btn big listen" data-act="say" data-k="done">'+esc(tt.listen)+'</button></div>'+voiceNote(l)+
+      '<p class="adultnote" lang="ko" style="text-align:center">선생님께: 문진이 끝났어요. [보건교사] 또는 [업무대행자] 화면에서 확인하세요.</p>'+
+      '<div class="row" style="justify-content:center;margin-top:14px"><button class="btn big pri" data-act="openTeacher">🩺 보건교사 화면</button><button class="btn big" data-act="openAgent">🧑‍🏫 업무대행자 화면</button></div>';
+    return h+'</div>';
+  }
+  var STEPS=stepsFor(c),idx=STEPS.indexOf(c.step);
+  h+='<div class="progress" aria-label="'+esc(tt.stepOf)+' '+(idx+1)+' / '+STEPS.length+'">'+STEPS.map(function(_,i){return '<span class="'+(i<=idx?'on':'')+'"></span>';}).join('')+'</div>';
+  h+='<div class="qhead" lang="'+l+'"><h1 class="q">'+esc(stuQ(c))+'</h1><button class="btn listen" data-act="say" data-k="q">'+esc(tt.listen)+'</button></div>'+voiceNote(l);
+  h+='<div lang="'+l+'">';
+  if(c.step==='emerg'){
+    h+='<div class="choices two">'+EMERG.map(function(e){var on=c.emerg.indexOf(e.id)>=0;return '<button class="choice danger" aria-pressed="'+on+'" data-act="tglEmerg" data-id="'+e.id+'"><span class="em" aria-hidden="true">'+e.em+'</span>'+esc(e[l])+'</button>';}).join('')+'</div>';
+    h+='<div class="navbar"><button class="btn" data-act="stuBack">← '+esc(tt.back)+'</button>'+
+       (c.emerg.length?'<button class="btn red" data-act="stuNext">'+esc(tt.next)+' →</button>':'<button class="btn pri" data-act="emergNone">✋ '+esc(tt.eNone)+'</button>')+'</div>';
+  }else if(c.step==='body'){
+    h+='<div class="bodywrap"><div class="bodybox"><div class="viewtoggle"><button class="btn sm" aria-pressed="'+(state.bodyView==='front')+'" data-act="bodyView" data-v="front">'+esc(tt.front)+'</button><button class="btn sm" aria-pressed="'+(state.bodyView==='rear')+'" data-act="bodyView" data-v="rear">'+esc(tt.rear)+'</button></div>'+bodySVG(state.bodyView==='front'?'front':'rear',c.parts,l)+'</div>';
+    h+='<div><h2 style="font-size:22px">'+esc(tt.chosen)+'</h2><div class="chips">'+(c.parts.length?uniq(c.parts.map(function(p){return partStu(p,l);})).map(function(n){return '<span class="chip">'+esc(n)+'</span>';}).join(''):'<span class="muted">—</span>')+'</div>'+
+      (state.bodyView==='front'?bellyPanel(c.parts,l):'')+'<button class="choice none" style="width:100%;min-height:96px;margin-top:12px" aria-pressed="'+c.unsure+'" data-act="tglUnsure"><span class="em" aria-hidden="true">❓</span>'+esc(tt.unsure)+'</button></div></div>';
+    h+=navbar(tt);
+  }else if(c.step==='sym'){
+    h+='<div class="symrows">'+SYM_ROWS.map(function(row){return '<div class="symrow n'+row.length+'">'+row.map(function(id){var s=symById(id),on=c.syms.indexOf(id)>=0;return '<button class="choice" aria-pressed="'+on+'" data-act="tglSym" data-id="'+id+'"><span class="em" aria-hidden="true">'+s.em+'</span>'+esc(s.name[l])+'</button>';}).join('')+'</div>';}).join('')+'</div>'+navbar(tt);
+  }else if(c.step==='stype'){
+    var st=stypeOf(c);
+    h+='<div class="choices">'+STYPE.map(function(o){var on=st.indexOf(o.id)>=0;return '<button class="choice'+(o.id==='unsure'?' none':'')+'" aria-pressed="'+on+'" data-act="tglStype" data-id="'+o.id+'"><span class="em" aria-hidden="true">'+o.em+'</span>'+esc(o[l])+'</button>';}).join('')+'</div>'+navbar(tt);
+  }else if(c.step==='pain'){
+    var pv=painVal(c);
+    h+='<div class="facegrid six">'+PAIN10.map(function(o,k){return '<button class="choice painbtn" aria-pressed="'+(pv===o.v)+'" data-act="setPain" data-n="'+o.v+'"><span class="pscore" style="background:'+PAIN_COL[o.v]+'">'+o.v+'</span>'+faceSVG(k)+'<span>'+esc(o[l])+'</span></button>';}).join('')+'</div>'+(pv!==null?'<div class="gaugewrap">'+gaugeHTML(pv,true)+'</div>':'')+navbar(tt);
+  }else if(c.step==='gc'){
+    h+='<h2 class="gch">'+esc(tt.gcG)+'</h2><div class="gcgrid g6">'+[1,2,3,4,5,6].map(function(n){return '<button class="choice gcb" aria-pressed="'+(String(c.t.grade)===String(n))+'" data-act="stuGc" data-f="grade" data-n="'+n+'">'+esc(gNum(n,l))+'</button>';}).join('')+'</div>';
+    var cc=classCount(),cs=[];for(var ci=1;ci<=cc;ci++)cs.push(ci);
+    h+='<h2 class="gch" style="margin-top:18px">'+esc(tt.gcC)+'</h2><div class="gcgrid">'+cs.map(function(n){return '<button class="choice gcb" aria-pressed="'+(String(c.t.cls)===String(n))+'" data-act="stuGc" data-f="cls" data-n="'+n+'">'+esc(cNum(n,l))+'</button>';}).join('')+'</div>'+navbar(tt);
+  }else if(c.step==='med'){
+    var md=medOf(c);
+    h+='<div class="choices four">'+MEDQ.map(function(o){var on=md.indexOf(o.id)>=0;return '<button class="choice'+(o.id==='unsure'?' none':'')+'" aria-pressed="'+on+'" data-act="tglMed" data-id="'+o.id+'"><span class="em" aria-hidden="true">'+o.em+'</span>'+esc(o[l])+'</button>';}).join('')+'</div>'+navbar(tt);
+  }else if(c.step==='when'||c.step==='cause'||c.step==='hosp'){
+    var arr=c.step==='when'?WHEN:(c.step==='cause'?CAUSE:HOSP),cur=c[c.step];
+    h+='<div class="choices'+(c.step==='hosp'?' two':'')+'">'+arr.map(function(o){return '<button class="choice" aria-pressed="'+(cur===o.id)+'" data-act="setOne" data-f="'+c.step+'" data-id="'+o.id+'"><span class="em" aria-hidden="true">'+o.em+'</span>'+esc(o[l])+'</button>';}).join('')+'</div>'+navbar(tt);
+  }
+  h+='<p class="hint" role="alert">'+esc(state.hint)+'</p></div>';
+  return h+'</div>';
+}
+function navbar(tt){return '<div class="navbar"><button class="btn" data-act="stuBack">← '+esc(tt.back)+'</button><button class="btn pri" data-act="stuNext">'+esc(tt.next)+' →</button></div>';}
+function voiceNote(l){return voiceMissing[l]?'<div class="novoice" lang="'+l+'">'+esc(T[l].noVoice)+'</div>':'';}
+function has2(a,x){return a.indexOf(x)>=0;}
+function uniq(a){var o=[];a.forEach(function(x){if(o.indexOf(x)<0)o.push(x);});return o;}
+function stuSpeakText(c,k){var l=c.lang,tt=T[l];
+  if(k==='stop')return tt.stopT+' '+tt.stopB;
+  if(k==='done')return tt.doneT+' '+tt.doneB;
+  var q=stuQ(c),opts=[];
+  if(c.step==='emerg')opts=EMERG.map(function(e){return e[l];}).concat([tt.eNone]);
+  else if(c.step==='sym')opts=[].concat.apply([],SYM_ROWS).map(function(id){return symById(id).name[l];});
+  else if(c.step==='stype')opts=STYPE.map(function(o){return o[l];});
+  else if(c.step==='pain')opts=PAIN10.map(function(o){return o.v+', '+o[l];});
+  else if(c.step==='when')opts=WHEN.map(function(o){return o[l];});
+  else if(c.step==='cause')opts=CAUSE.map(function(o){return o[l];});
+  else if(c.step==='gc')opts=[];
+  else if(c.step==='hosp')opts=HOSP.map(function(o){return o[l];});
+  else if(c.step==='med')opts=MEDQ.map(function(o){return o[l];});
+  return q+(opts.length?'. '+opts.join('. ')+'.':'');
+}
+
+/* --- 보건교사 --- */
+function renderTeacher(){
+  var h='<div class="tabs" role="tablist">'+[['case','🩺 현재 학생'],['rec','📒 기록'],['admin','⚙️ 관리']].map(function(t){return '<button class="tab" role="tab" aria-selected="'+(state.tab===t[0])+'" data-act="tab" data-t="'+t[0]+'">'+t[1]+'</button>';}).join('')+'</div>';
+  if(state.tab==='rec')return h+renderRecords();
+  if(state.tab==='admin')return h+renderAdmin();
+  var list=cases().filter(function(c){return !c.t.saved||c.id===state.tid;});
+  if(!state.tid||!getCase(state.tid)){var dn=list.filter(function(c){return c.done;});state.tid=dn.length?dn[dn.length-1].id:(list.length?list[list.length-1].id:null);}
+  h+='<div class="pending">'+list.map(function(c){var on=c.id===state.tid;var lab=(gcLabel(c)?gcLabel(c)+' · ':'')+fmtTime(c.created)+' · '+(c.syms.length?c.syms.map(function(s){return symById(s).k;}).slice(0,2).join(','):(c.done?'증상 미선택':'작성 중'));
+    return '<button class="btn sm" aria-pressed="'+on+'" data-act="pickCase" data-id="'+c.id+'">'+(c.emerg.length?'🚨 ':'')+(isProtect(c)?'🟣 ':'')+esc(lab)+'</button>';}).join('')+
+    '<button class="btn sm" data-act="manualCase">＋ 학생 문진 없이 새 기록</button></div>';
+  var c=getCase(state.tid);
+  if(!c)return h+'<div class="card narrow"><h2>아직 확인할 문진이 없어요</h2><p>학생이 [학생 문진 시작]으로 문진을 마치면 여기에 나타나요. 학생 문진 없이 기록하려면 [＋ 학생 문진 없이 새 기록]을 누르세요.</p><button class="btn pri" data-act="startStudent">🧒 학생 문진 시작하기</button></div>';
+  if(!c.done)h+='<div class="alert info">이 학생은 아직 문진을 끝내지 않았어요. 지금까지 고른 내용만 보여요.</div>';
+  h+=foldBar(FOLD_IDS_T)+'<div class="toprow"><div>'+tSummary(c)+'</div><div>'+tCare(c,false)+'</div></div><div class="below">'+tAlerts(c)+tEmergency(c,false)+tAssess(c)+tSeverity(c)+tLetter(c)+tDone(c)+'</div>';
+  return h;
+}
+/* 항목 접기: 접은 상태는 이 기기에 기억. 응급·보호 항목은 항상 펼침 */
+var FOLD_DEFAULT=['warn','emg','asm','sev','let'];
+function foldedSet(){var c=getCase(state.tid);if(!c)return FOLD_DEFAULT.slice();return (c.t.fold?c.t.fold:FOLD_DEFAULT).slice();}
+function saveFold(arr){var c=getCase(state.tid);if(!c)return;c.t.fold=arr;putCase(c);}
+function cardOpen(id,num,title,badge,force,style){
+  var col=!force&&foldedSet().indexOf(id)>=0;
+  var head='<div class="sec foldhead'+(force?' forced':'')+'"'+(force?'':' data-act="fold" data-sec="'+id+'" role="button" tabindex="0" aria-expanded="'+(!col)+'"')+'>'+
+    (num?'<span class="num">'+num+'</span>':'')+'<h2 style="margin:0">'+title+'</h2>'+(badge?'<span class="fbadge">'+badge+'</span>':'')+
+    (force?'<span class="fpin">중요 · 항상 펼침</span>':'<span class="chev" aria-hidden="true">'+(col?'펼치기 ▸':'접기 ▾')+'</span>')+'</div>';
+  return '<div class="card fold'+(col?' folded':'')+'"'+(style?' style="'+style+'"':'')+'>'+head;
+}
+function sumBadge(c){var a=[];if(gcLabel(c))a.push(gcLabel(c));if(c.syms.length)a.push(c.syms.map(function(x){return symById(x).k;}).slice(0,3).join(', '));return a.join(' · ');}
+var FOLD_IDS_T=['sum','warn','emg','asm','sev','care','let'],FOLD_IDS_A=['asum','emg','acare'];
+function foldBar(ids){return '<div class="row end" style="margin:-6px 0 12px"><button class="btn sm" data-act="foldAll" data-v="0" data-ids="'+ids.join(',')+'">모두 펼치기</button><button class="btn sm" data-act="foldAll" data-v="1" data-ids="'+ids.join(',')+'">모두 접기</button></div>';}
+function tSummary(c){
+  var l=langInfo(c.lang),h=cardOpen('sum','','학생 문진 요약',esc(sumBadge(c)),false)+gcFields(c,'t')+'<table class="sumtbl">';
+  var row=function(k,v){h+='<tr><th>'+k+'</th><td>'+v+'</td></tr>';};
+  row('문진 시각',esc(fmtDate(c.created)+' '+fmtTime(c.created)));
+  if(c.student)row('문진 언어',esc(l.kname)+' <span class="muted small">(안내문 언어용)</span>');else row('입력','<span class="muted">교사 직접 기록</span>');
+  row('응급 징후',c.emerg.length?'<span class="tag red">'+esc(c.emerg.map(function(e){return findBy(EMERG,e).k;}).join(', '))+'</span>':'없음');
+  row('아픈 곳<br><span class="small muted" style="font-weight:400">좌우=학생 몸 기준</span>',(c.parts.length?esc(c.parts.map(partKo).join(', ')):'')+(c.unsure?' <span class="muted">(잘 모르겠음)</span>':'')||'—');
+  row('증상',c.syms.length?esc(c.syms.map(function(s){return symById(s).k;}).join(', ')):'—');
+  if(c.syms.indexOf('stomach')>=0)row('복통 양상',stypeOf(c).length?esc(stypeOf(c).map(function(x){return findBy(STYPE,x).k;}).join(', ')):'—');
+  row('아픈 정도',painVal(c)!==null?'<b>'+esc(painText(painVal(c)))+'</b>'+gaugeHTML(painVal(c),false):(needsPain(c)?'—':'<span class="muted">해당 없음(통증 척도 미적용 증상)</span>'));
+  row('시작',c.when?esc(findBy(WHEN,c.when).k):'—');
+  row('원인',c.cause?esc(findBy(CAUSE,c.cause).k):'—');
+  row('병원 진료',esc(hospText(c)));
+  row('복용 중인 약',medOf(c).length?esc(medOf(c).map(function(x){return findBy(MEDQ,x).k;}).join(', ')):'—');
+  if(c.mind)row('마음(이전 문항)',esc(findBy(MIND,c.mind).k));
+  h+='</table>';
+  h+='<details><summary>증상 추가·변경</summary><div class="chips">'+symOrdered().map(function(s){var on=c.syms.indexOf(s.id)>=0;return '<button class="btn sm" aria-pressed="'+on+'" style="'+(on?'background:var(--pri);color:#fff;border-color:var(--pri)':'')+'" data-act="tSym" data-id="'+s.id+'">'+s.em+' '+esc(s.k)+'</button>';}).join('')+'</div></details>';
+  h+='<p class="small muted">진단명은 표시하지 않아요. 판정에는 성별·국적·언어를 쓰지 않아요.</p>';
+  h+='<div class="row"><button class="btn sm" data-act="delCase">🗑 이 문진 지우기</button></div></div>';
+  return h;
+}
+function tAlerts(c){
+  var h='',w=warnings(c);
+  if(w.length)h+=cardOpen('warn','','⚠️ 위험 신호 경고',w.length+'건',w.some(function(x){return x[0]==='red';}))+w.map(function(x){return '<div class="alert '+x[0]+'">'+esc(x[1])+'</div>';}).join('')+'</div>';
+  if(isProtect(c)){
+    h+=cardOpen('prot','','<span style="color:var(--purple)">🟣 보호 필요</span>','',true,'border-color:var(--purple)')+'<div class="alert purple">학생 응답: '+esc([c.cause==='other'?'다른 사람 때문에 다쳤어요':'',c.mind==='hard'?'마음이 많이 힘들어요':''].filter(Boolean).join(' / '))+'</div>'+
+      '<p class="small">이 표시는 보건교사 화면에만 나와요. 놀이 중 단순 사고인지 학생에게 차분히 확인한 뒤 판단하세요.</p><ol class="small">'+PROTECT_STEPS.map(function(s){return '<li>'+esc(s)+'</li>';}).join('')+'</ol>'+
+      '<p class="src">근거: 아동학대범죄의 처벌 등에 관한 특례법 제10조, 학교폭력 신고 117, 자살예방상담전화 109(보건복지부, 2024.1. 통합) · 학교별 위기대응 절차를 우선 따르세요.</p></div>';
+  }
+  return h;
+}
+function tEmergency(c,agent){
+  var t=c.t,em=!!(t.g.length||c.emerg.length),h=cardOpen('emg',1,'응급 징후 확인',em?'🚑 119 대응':'',em)+'<p class="small muted">하나라도 해당하면 다른 단계보다 먼저 119 신고·응급처치를 하세요.</p>';
+  h+=GE.map(function(g){var on=t.g.indexOf(g.id)>=0;return '<label class="chk"><input type="checkbox" data-chg="ge" data-id="'+g.id+'"'+(on?' checked':'')+'><span>'+esc(g.k)+'</span></label>';}).join('');
+  if(t.g.length||c.emerg.length){
+    var keys=['gen'];t.g.forEach(function(id){var k=findBy(GE,id).card;if(keys.indexOf(k)<0)keys.push(k);});
+    h+='<div class="alert red" style="font-size:21px">🚑 즉시 119 신고 · 관리자 보고 · 담임 통해 보호자 연락</div>';
+    keys.forEach(function(k){var e=ECARDS[k];h+='<details open><summary>'+esc(e.t)+'</summary><ol class="small">'+e.s.filter(function(x){return !(agent&&x.med);}).map(function(x){return '<li>'+esc(typeof x==='string'?x:x.x)+'</li>';}).join('')+'</ol><p class="src">출처: '+esc(e.src)+' · '+reviewLine()+'</p></details>';});
+  }
+  return h+'</div>';
+}
+function reviewLine(){var r=store.get('contentReview',null);return r&&r.ok?'보건교사 검수 '+esc(r.date):'자료 대조일 '+CHECK_DATE+' (보건교사 검수 전)';}
+function tAssess(c){
+  var t=c.t,nck=0;Object.keys(t.ck).forEach(function(k){nck+=(t.ck[k]||[]).length;});var h=cardOpen('asm',2,'증상별 건강사정 체크리스트',nck?nck+'개 체크':'',false);
+  h+='<div class="row" style="margin:10px 0"><div class="field" style="max-width:220px"><label for="tTemp">체온 ℃ (선택)</label><input id="tTemp" type="number" inputmode="decimal" step="0.1" min="34" max="43" value="'+esc(t.temp)+'" data-chg="temp"></div></div>';
+  if(!c.syms.length)return h+'<p class="muted">선택된 증상이 없어요. 왼쪽 [증상 추가·변경]에서 골라 주세요.</p></div>';
+  c.syms.forEach(function(sid){var s=symById(sid);var ck=t.ck[sid]||[];
+    h+='<details open><summary>'+s.em+' '+esc(s.k)+'</summary>';
+    [['E','응급 — 119'],['U','긴급 — 보호자 인계·진료'],['N','비응급 — 처치 후 복귀']].forEach(function(tr){
+      h+='<div class="tier '+tr[0]+'"><div class="tl">'+tr[1]+'</div>'+s[tr[0]].map(function(txt,i){var key=tr[0]+':'+i,on=ck.indexOf(key)>=0;
+        return '<label class="chk"><input type="checkbox" data-chg="ck" data-s="'+sid+'" data-k="'+key+'"'+(on?' checked':'')+'><span>'+esc(txt)+'</span></label>';}).join('')+'</div>';});
+    h+='<p class="src">출처: '+esc(s.src)+'</p></details>';});
+  return h+'</div>';
+}
+function tSeverity(c){
+  var r=recommend(c),t=c.t,h=cardOpen('sev',3,'중증도 추천과 최종 판단',t.sev?'최종 '+t.sev+'단계 · '+esc(SEV[t.sev].n):(r.basis?'추천 '+r.lvl+'단계':''),false);
+  if(r.basis){h+='<div class="rec"><b>추천: </b><span class="tag '+SEV[r.lvl].c+'" style="font-size:18px">'+r.lvl+'단계 · '+esc(SEV[r.lvl].n)+'</span>'+(r.reasons.length?'<ul class="small">'+r.reasons.map(function(x){return '<li>'+esc(x)+'</li>';}).join('')+'</ul>':'<p class="small muted">응급·긴급 항목 체크 없음</p>')+'</div>';}
+  else h+='<div class="rec muted">체크리스트나 체온을 입력하면 추천이 나와요.</div>';
+  h+='<p style="margin-top:12px"><b>최종 판단은 보건교사가 합니다.</b> 아래에서 골라 주세요.</p><div class="sevgrid">'+[1,2,3].map(function(n){return '<button class="sev s'+n+'" aria-pressed="'+(t.sev===n)+'" data-act="setSev" data-n="'+n+'"><b>'+n+'단계 · '+esc(SEV[n].n)+'</b><span>'+esc(SEV[n].d)+'</span></button>';}).join('')+'</div>';
+  h+='<p class="src">판단 기준: '+esc(SRC_G)+' 3C(Check·Call·Care) · '+esc(SRC_M)+' 중증도 분류(응급·긴급·비응급)</p>';
+  return h+'</div>';
+}
+function tCare(c,agent){
+  var h=cardOpen(agent?'acare':'care','',agent?'🩹 기본 처치 안내':'🩹 응급처치·처치 안내','',false);
+  if(!c.syms.length)return h+'<p class="muted">증상을 고르면 처치 안내가 나와요.</p></div>';
+  c.syms.forEach(function(sid){var s=symById(sid);var list=agent?s.agent:s.care;
+    h+='<details open><summary>'+s.em+' '+esc(s.k)+'</summary><ol class="carelist">'+list.map(function(x){return '<li>'+esc(x)+'</li>';}).join('')+'</ol>'+
+      '<p class="src">출처: '+esc(s.src)+' · '+reviewLine()+' <button class="btn sm ghost" data-act="report" data-area="'+(agent?'대행자 기본 처치':'처치 안내')+' – '+esc(s.k)+'">⚑ 오류 신고</button></p></details>';});
+  if(!agent)h+='<details><summary>💊 투약 시 확인 사항 (보건교사만)</summary><ul class="small">'+MEDCHECK.map(function(x){return '<li>'+esc(x)+'</li>';}).join('')+'</ul><p class="src">출처: '+esc(SRC_M)+' 의약품 등 관리(p.9~12) · 일반의약품만 사용, 조제 불가(약사법 제23조)</p></details>';
+  return h+'</div>';
+}
+function letterHTML(c,lang,acts,school){
+  var lt=LT[lang],h='<div class="lpage" lang="'+lang+'"><h3>'+esc(lt.title)+'</h3><p>'+esc(lt.greet)+'</p>';
+  h+='<p><b>'+esc(lt.date)+':</b> '+esc(fmtDate(Date.now()))+'</p>';
+  h+='<h4>'+esc(lt.sym)+'</h4><ul>'+c.syms.map(function(s){return '<li>'+esc(symById(s).name[lang])+'</li>';}).join('')+'</ul>';
+  if(acts.length)h+='<h4>'+esc(lt.did)+'</h4><ul>'+acts.map(function(a){return '<li>'+esc(findBy(ACTS,a)[lang])+'</li>';}).join('')+'</ul>';
+  h+='<h4>'+esc(lt.home)+'</h4>';c.syms.forEach(function(sid){var s=symById(sid);h+='<p style="margin:6px 0 0;font-weight:700">· '+esc(s.name[lang])+'</p><ul>'+s.home.map(function(x){return '<li>'+esc(x[lang])+'</li>';}).join('')+'</ul>';});
+  h+='<h4>'+esc(lt.hosp)+'</h4><ul>'+c.syms.map(function(sid){return symById(sid).hosp.map(function(x){return '<li>'+esc(x[lang])+'</li>';}).join('');}).join('')+'</ul>';
+  h+='<div class="em">'+esc(lt.em)+'</div><p style="margin-top:10px">'+esc(lt.close)+'</p><p style="text-align:right;font-weight:700">'+esc((school?school+' ':'')+lt.office)+'</p></div>';
+  return h;
+}
+function letterText(c,lang,acts,school){
+  var lt=LT[lang],o=[lt.title,'',lt.greet,lt.date+': '+fmtDate(Date.now()),'','['+lt.sym+']'];
+  c.syms.forEach(function(s){o.push('- '+symById(s).name[lang]);});
+  if(acts.length){o.push('','['+lt.did+']');acts.forEach(function(a){o.push('- '+findBy(ACTS,a)[lang]);});}
+  o.push('','['+lt.home+']');c.syms.forEach(function(sid){var s=symById(sid);o.push('· '+s.name[lang]);s.home.forEach(function(x){o.push('  - '+x[lang]);});});
+  o.push('','['+lt.hosp+']');c.syms.forEach(function(sid){symById(sid).hosp.forEach(function(x){o.push('- '+x[lang]);});});
+  o.push('','※ '+lt.em,lt.close,(school?school+' ':'')+lt.office);return o.join('\n');
+}
+function letterLang(c){var t=c.t;if(t.ll===null||t.ll===undefined)return c.lang!=='ko'?c.lang:'';return t.ll;}
+function tLetter(c){
+  var t=c.t,h=cardOpen('let',4,'보호자 가정 관리 안내문',(isProtect(c)&&!t.unlock)?'🟣 잠김':'',false);
+  if(isProtect(c)&&!t.unlock){
+    return h+'<div class="lock"><p><b>🟣 보호 필요 학생이라 안내문 자동 생성을 멈췄어요.</b></p><p class="small">관리자에게 보고한 뒤, 보호자에게 안내문을 보내도 되는지 판단하세요. 가해 의심 보호자에게 정보가 전달되지 않도록 주의하세요.</p>'+
+      '<label class="chk"><input type="checkbox" data-chg="reported"'+(t.reported?' checked':'')+'><span>학교 관리자에게 보고했고, 안내문을 보내도 된다고 판단했어요.</span></label>'+
+      '<button class="btn" data-act="unlockLetter"'+(t.reported?'':' disabled')+'>안내문 열기</button></div></div>';
+  }
+  if(!c.syms.length)return h+'<p class="muted">증상을 고르면 안내문이 만들어져요.</p></div>';
+  var ll=letterLang(c),s=settings();
+  h+='<div class="row" style="margin:8px 0 12px"><div class="field"><label for="llSel">보호자 언어 (한국어와 함께 표시)</label><select id="llSel" data-chg="ll"><option value=""'+(ll===''?' selected':'')+'>한국어만</option>'+
+    LANGS.slice(1).map(function(x){return '<option value="'+x.code+'"'+(ll===x.code?' selected':'')+'>'+esc(x.kname+' ('+x.name+')')+'</option>';}).join('')+'</select></div></div>';
+  h+='<p style="margin-bottom:4px"><b>학교에서 한 조치</b> <span class="small muted">(안내문에 들어가요)</span></p><div class="chips">'+ACTS.map(function(a){var on=t.acts.indexOf(a.id)>=0;
+    return '<label class="chk" style="border:2px solid '+(on?'var(--pri)':'var(--line)')+';background:'+(on?'var(--pri-soft)':'#fff')+'"><input type="checkbox" data-chg="act" data-id="'+a.id+'"'+(on?' checked':'')+'><span>'+esc(a.ko)+'</span></label>';}).join('')+'</div>';
+  if(ll){var rv=store.get('review',{})[ll];if(!(rv&&rv.ok))h+='<div class="alert amber">'+esc(langInfo(ll).kname)+' 번역은 <b>검수 전</b>이에요. 가능하면 원어민(다문화 언어강사 등) 확인 후 사용하세요. 검수 표시는 [관리]에서 바꿀 수 있어요.</div>';
+    else h+='<div class="alert green">'+esc(langInfo(ll).kname)+' 번역 검수 완료 ('+esc(rv.date)+')</div>';}
+  h+='<div class="letter'+(ll?' two':'')+'">'+letterHTML(c,'ko',t.acts,s.school)+(ll?letterHTML(c,ll,t.acts,s.school):'')+'</div>';
+  h+='<div class="row" style="margin-top:14px"><button class="btn pri" data-act="printLetter">🖨 인쇄하기</button><button class="btn" data-act="copyLetter">📋 글 복사하기</button><button class="btn sm ghost" data-act="report" data-area="가정 안내문/번역">⚑ 오류 신고</button></div>';
+  h+='<p class="src">가정 관리 문구 출처: 증상별 처치 안내와 같은 공식 자료의 고정 문구 · '+reviewLine()+'</p>';
+  return h+'</div>';
+}
+function tDone(c){
+  return '<div class="card"><div class="row between"><p style="margin:0">처치와 안내가 끝나면 이 문진을 정리하고 다음 학생을 받으세요.</p><button class="btn pri" data-act="finishCase2">✅ 확인 완료 · 다음 학생 받기</button></div></div>';
+}
+function tSave(c){
+  var t=c.t,h='<div class="card"><div class="sec"><span class="num">6</span><h2 style="margin:0">보건일지 저장</h2></div>';
+  if(t.saved)return h+'<div class="alert green">✅ 보건일지에 저장했어요.</div><div class="row"><button class="btn pri" data-act="finishCase">다음 학생 받기 (이 문진 정리)</button></div></div>';
+  h+='<p class="small muted">학년·반·번호는 이 기기에만 저장돼요. 이름은 받지 않아요.</p><div class="row">'+
+   '<div class="field"><label for="sG">학년</label><select id="sG" data-chg="tf" data-f="grade"><option value="">선택</option>'+[1,2,3,4,5,6].map(function(n){return '<option'+(String(t.grade)===String(n)?' selected':'')+'>'+n+'</option>';}).join('')+'</select></div>'+
+   '<div class="field"><label for="sC">반</label><input id="sC" type="number" inputmode="numeric" min="1" max="30" value="'+esc(t.cls)+'" data-chg="tf" data-f="cls"></div>'+
+   '<div class="field"><label for="sN">번호</label><input id="sN" type="number" inputmode="numeric" min="1" max="50" value="'+esc(t.no)+'" data-chg="tf" data-f="no"></div></div>';
+  h+='<p class="small" style="margin-top:10px">저장 내용: 날짜·시간, 학년·반·번호, 아픈 곳, 증상, 복통 양상, 아픈 정도, 병원 진료·복용 약, 중증도'+(t.sev?' ('+t.sev+'단계)':' <b style="color:var(--red)">(③에서 골라 주세요)</b>')+', 학교 조치'+(isProtect(c)?', 보호 필요 표시':'')+'</p>';
+  h+='<div class="row"><button class="btn pri big" data-act="saveLog">💾 보건일지에 저장</button></div></div>';
+  return h;
+}
+
+/* --- 보건일지·통계 --- */
+function logs(){return store.get('logs',[]);}
+function periodFilter(arr){var now=new Date();return arr.filter(function(r){var d=new Date(r.ts);
+  if(state.statPeriod==='today')return d.toDateString()===now.toDateString();
+  if(state.statPeriod==='month')return d.getFullYear()===now.getFullYear()&&d.getMonth()===now.getMonth();return true;});}
+function bars(map,order,labelFn){var max=0,k;for(k in map)if(map[k]>max)max=map[k];if(!max)return '<p class="muted">기록이 없어요.</p>';
+  return '<div class="bars">'+order.filter(function(k){return map[k];}).map(function(k){return '<div class="bar"><span>'+esc(labelFn(k))+'</span><span class="tr"><span class="fl" style="display:block;width:'+Math.round(map[k]/max*100)+'%"></span></span><b>'+map[k]+'</b></div>';}).join('')+'</div>';}
+function renderLog(){
+  var all=logs(),arr=periodFilter(all),h='<div class="card"><div class="row between"><h2 style="margin:0">보건일지 통계</h2><div class="row">'+
+   [['today','오늘'],['month','이번 달'],['all','전체']].map(function(p){return '<button class="btn sm" aria-pressed="'+(state.statPeriod===p[0])+'" style="'+(state.statPeriod===p[0]?'background:var(--pri);color:#fff;border-color:var(--pri)':'')+'" data-act="period" data-p="'+p[0]+'">'+p[1]+'</button>';}).join('')+'</div></div>';
+  var bySym={},byG={},bySev={};arr.forEach(function(r){r.syms.forEach(function(s){bySym[s]=(bySym[s]||0)+1;});byG[r.g]=(byG[r.g]||0)+1;bySev[r.sev]=(bySev[r.sev]||0)+1;});
+  h+='<p>이용 건수 <span class="kpi">'+arr.length+'</span>건 <span class="muted small">(전체 '+all.length+'건)</span></p>';
+  h+='<div class="statgrid"><div><h3>증상별</h3>'+bars(bySym,symOrdered().map(function(s){return s.id;}),function(k){return symById(k).k;})+'</div>'+
+     '<div><h3>학년별</h3>'+bars(byG,['1','2','3','4','5','6'],function(k){return k+'학년';})+'</div>'+
+     '<div><h3>중증도별</h3>'+bars(bySev,['1','2','3'],function(k){return k+'단계';})+'</div></div></div>';
+  h+='<div class="card"><div class="row between"><h2 style="margin:0">기록 목록</h2><div class="row"><button class="btn" data-act="csv">⬇ CSV(엑셀) 내려받기</button><button class="btn red" data-act="wipeLogs">기록 전체 삭제</button></div></div>';
+  if(!arr.length)h+='<p class="muted" style="margin-top:10px">이 기간의 기록이 없어요.</p>';
+  else{h+='<div class="tblwrap"><table class="tbl" style="margin-top:12px"><thead><tr><th>날짜·시간</th><th>학년-반-번호</th><th>증상</th><th>아픈 정도</th><th>중증도</th><th>표시</th></tr></thead><tbody>'+
+    arr.slice().reverse().slice(0,200).map(function(r){return '<tr><td>'+esc(fmtDate(r.ts)+' '+fmtTime(r.ts))+'</td><td>'+esc(r.g+'-'+r.cl+'-**')+'</td><td>'+esc(r.syms.map(function(s){return symById(s)?symById(s).k:s;}).join(', '))+'</td><td>'+((r.pain10!=null?esc(r.pain10+'/10'):(r.pain?esc(r.pain+'/5'):'—')))+'</td><td><span class="tag '+SEV[r.sev].c+'">'+esc(r.sev+'단계')+'</span></td><td>'+(r.emerg?'<span class="tag red">응급징후</span>':'')+(r.protect?'<span class="tag purple">보호</span>':'')+'</td></tr>';}).join('')+'</tbody></table></div>';
+    h+='<p class="small muted">번호는 화면에서 가려져요(**). CSV에는 전체 번호가 들어가요.</p>';}
+  return h+'</div>';
+}
+
+/* --- 기록 보관함 (이 기기에만 저장) --- */
+var REC_MAX=3000;
+function records(){return store.get('records',[]);}
+function recPeriod(arr){var now=new Date();return arr.filter(function(r){var d=new Date(r.done||r.created);
+  if(state.statPeriod==='today')return d.toDateString()===now.toDateString();
+  if(state.statPeriod==='month')return d.getFullYear()===now.getFullYear()&&d.getMonth()===now.getMonth();return true;});}
+function ckList(c,tier){var o=[];c.syms.forEach(function(sid){var sy=symById(sid);if(!sy)return;(c.t.ck[sid]||[]).forEach(function(k){var p=k.split(':');if(p[0]===tier&&sy[tier][+p[1]])o.push('['+sy.k+'] '+sy[tier][+p[1]]);});});return o;}
+function renderRecords(){
+  var all=records(),arr=recPeriod(all);
+  var h='<div class="alert info">📒 [확인 완료 · 다음 학생 받기]를 누른 문진이 이 기기(브라우저)에만 저장돼요. 브라우저 기록 삭제·기기 교체 시 사라질 수 있으니 주기적으로 CSV로 내려받아 보관하세요.'+(store.ok?'':' <b>지금 이 기기는 저장이 안 돼요.</b>')+'</div>';
+  h+='<div class="card"><div class="row between"><h2 style="margin:0">기록 통계</h2><div class="row">'+
+   [['today','오늘'],['month','이번 달'],['all','전체']].map(function(p){var on=state.statPeriod===p[0];return '<button class="btn sm" aria-pressed="'+on+'" style="'+(on?'background:var(--pri);color:#fff;border-color:var(--pri)':'')+'" data-act="period" data-p="'+p[0]+'">'+p[1]+'</button>';}).join('')+'</div></div>';
+  var bySym={},byG={},bySev={};arr.forEach(function(r){r.syms.forEach(function(x){bySym[x]=(bySym[x]||0)+1;});if(r.t.grade)byG[r.t.grade]=(byG[r.t.grade]||0)+1;if(r.t.sev)bySev[r.t.sev]=(bySev[r.t.sev]||0)+1;});
+  h+='<p>보건실 이용 <span class="kpi">'+arr.length+'</span>건 <span class="muted small">(전체 보관 '+all.length+'건)</span></p>';
+  h+='<div class="statgrid"><div><h3>증상별</h3>'+bars(bySym,symOrdered().map(function(x){return x.id;}),function(k){return symById(k).k;})+'</div>'+
+     '<div><h3>학년별</h3>'+bars(byG,['1','2','3','4','5','6'],function(k){return k+'학년';})+'</div>'+
+     '<div><h3>중증도별</h3>'+bars(bySev,['1','2','3'],function(k){return k+'단계 · '+SEV[k].n;})+'</div></div></div>';
+  h+='<div class="card"><div class="row between"><h2 style="margin:0">기록 목록</h2><div class="row"><button class="btn" data-act="csv"'+(all.length?'':' disabled')+'>⬇ CSV(엑셀) 내려받기</button><button class="btn red" data-act="wipeLogs"'+(all.length?'':' disabled')+'>기록 전체 삭제</button></div></div>';
+  if(!arr.length)h+='<p class="muted" style="margin-top:10px">이 기간의 기록이 없어요.</p>';
+  else h+='<div class="tblwrap"><table class="tbl" style="margin-top:12px"><thead><tr><th>날짜·시간</th><th>학년·반</th><th>증상</th><th>아픈 정도</th><th>중증도</th><th>표시</th><th></th></tr></thead><tbody>'+
+    arr.slice().reverse().slice(0,300).map(function(r){var pv=painVal(r);return '<tr><td>'+esc(fmtDate(r.created)+' '+fmtTime(r.created))+'</td><td>'+(esc(gcLabel(r))||'—')+'</td><td>'+esc(r.syms.map(function(x){return symById(x)?symById(x).k:x;}).join(', ')||'—')+'</td><td>'+(pv!==null?esc(pv+'/10'):'—')+'</td><td>'+(r.t.sev?'<span class="tag '+SEV[r.t.sev].c+'">'+esc(r.t.sev+'단계')+'</span>':'<span class="muted">미선택</span>')+'</td><td>'+((r.emerg.length||r.t.g.length)?'<span class="tag red">응급징후</span>':'')+(isProtect(r)?'<span class="tag purple">보호</span>':'')+'</td><td style="white-space:nowrap"><button class="btn sm" data-act="recView" data-id="'+r.id+'">보기</button> <button class="btn sm ghost" data-act="recDel" data-id="'+r.id+'">삭제</button></td></tr>';}).join('')+'</tbody></table></div>'+(arr.length>300?'<p class="small muted">화면에는 최근 300건만 보여요. 전체는 CSV로 확인하세요.</p>':'');
+  return h+'</div>';
+}
+function recDetail(r){
+  var rows=[],add=function(k,v){rows.push('<tr><th>'+k+'</th><td>'+v+'</td></tr>');},pv=painVal(r),rc=recommend(r);
+  add('문진 시각',esc(fmtDate(r.created)+' '+fmtTime(r.created)));add('확인 완료',esc(r.done?fmtDate(r.done)+' '+fmtTime(r.done):'—'));
+  add('학년·반',esc(gcLabel(r))||'—');add('문진 언어',esc(r.student?langInfo(r.lang).kname:'교사 직접 기록'));
+  add('응급 징후(학생)',r.emerg.length?esc(r.emerg.map(function(e){return findBy(EMERG,e).k;}).join(', ')):'없음');
+  add('응급 징후(확인)',r.t.g.length?esc(r.t.g.map(function(g){return findBy(GE,g).k;}).join(', ')):'없음');
+  add('아픈 곳',esc(r.parts.map(partKo).join(', '))||'—');add('증상',esc(r.syms.map(function(x){return symById(x)?symById(x).k:x;}).join(', '))||'—');
+  if(stypeOf(r).length)add('복통 양상',esc(stypeOf(r).map(function(x){return findBy(STYPE,x).k;}).join(', ')));
+  add('아픈 정도',pv!==null?esc(painText(pv))+gaugeHTML(pv,false):'—');
+  add('시작',r.when?esc(findBy(WHEN,r.when).k):'—');add('원인',r.cause?esc(findBy(CAUSE,r.cause).k):'—');
+  add('병원 진료',esc(hospText(r)));add('복용 중인 약',medOf(r).length?esc(medOf(r).map(function(x){return findBy(MEDQ,x).k;}).join(', ')):'—');
+  add('체온',r.t.temp?esc(r.t.temp+'℃'):'—');
+  var e=ckList(r,'E'),u=ckList(r,'U');add('체크(응급·긴급)',(e.concat(u).length?'<ul class="small" style="margin:0">'+e.map(function(x){return '<li style="color:var(--red)">'+esc(x)+'</li>';}).join('')+u.map(function(x){return '<li>'+esc(x)+'</li>';}).join('')+'</ul>':'없음'));
+  add('추천 / 최종',(rc.basis?esc(rc.lvl+'단계'):'—')+' / '+(r.t.sev?'<b>'+esc(r.t.sev+'단계 · '+SEV[r.t.sev].n)+'</b>':'미선택'));
+  add('학교 조치',r.t.acts.length?esc(r.t.acts.map(function(a){return findBy(ACTS,a).ko.replace(/\.$/,'');}).join(', ')):'—');
+  if(isProtect(r))add('보호 필요','<span class="tag purple">예</span>'+(r.t.unlock?' 관리자 보고 후 안내문 열람':''));
+  return '<h2>기록 자세히 보기</h2><table class="sumtbl">'+rows.join('')+'</table><div class="row end" style="margin-top:16px"><button class="btn" data-act="modalClose">닫기</button></div>';
+}
+
+/* --- 관리 --- */
+function renderAdmin(){
+  var s=settings(),rv=store.get('review',{}),cr=store.get('contentReview',null),reps=store.get('reports',[]);
+  var h='<div class="statgrid"><div class="card"><h2>학교 정보</h2><div class="field"><label for="aSchool">학교 이름 (안내문 끝에 표시)</label><input id="aSchool" type="text" maxlength="30" value="'+esc(s.school)+'" placeholder="예: ○○초등학교"></div><div class="field" style="margin-top:10px;max-width:260px"><label for="aClasses">학년별 최대 반 수 (학생 화면 반 버튼 개수)</label><select id="aClasses">'+Array.apply(null,{length:20}).map(function(_,i){var n=i+1;return '<option value="'+n+'"'+(classCount()===n?' selected':'')+'>'+n+'반까지</option>';}).join('')+'</select></div><div class="row" style="margin-top:12px"><button class="btn pri" data-act="saveSchool">저장</button></div></div>'+
+   '<div class="card"><h2>PIN 바꾸기</h2><div class="field"><label for="aOld">지금 보건교사 PIN</label><input id="aOld" class="pinin" type="password" inputmode="numeric" maxlength="4" autocomplete="off"></div>'+
+   '<div class="field" style="margin-top:8px"><label for="aNewT">새 보건교사 PIN (바꿀 때만)</label><input id="aNewT" class="pinin" type="password" inputmode="numeric" maxlength="4" autocomplete="off"></div>'+
+   '<div class="field" style="margin-top:8px"><label for="aNewA">업무대행자 PIN '+(s.pinA?'(설정됨 · 새로 입력하면 바뀜)':'(아직 없음)')+'</label><input id="aNewA" class="pinin" type="password" inputmode="numeric" maxlength="4" autocomplete="off"></div>'+
+   '<div class="row" style="margin-top:12px"><button class="btn pri" data-act="savePins">저장</button>'+(s.pinA?'<button class="btn" data-act="clearAgentPin">대행자 PIN 지우기</button>':'')+'</div></div></div>';
+  h+='<div class="card"><h2>번역·문구 검수 표시</h2><p class="small muted">원어민 또는 보건교사가 확인한 뒤 표시하세요. 검수 전에는 안내문에 경고가 나와요.</p>'+
+    LANGS.slice(1).map(function(x){var r=rv[x.code];return '<label class="chk"><input type="checkbox" data-chg="review" data-l="'+x.code+'"'+(r&&r.ok?' checked':'')+'><span>'+esc(x.kname+' ('+x.name+')')+' 번역 검수 완료'+(r&&r.ok?' — '+esc(r.date):'')+'</span></label>';}).join('')+
+    '<label class="chk"><input type="checkbox" data-chg="contentReview"'+(cr&&cr.ok?' checked':'')+'><span>응급처치·처치·가정 관리 문구를 원 자료와 대조해 보건교사가 검수함'+(cr&&cr.ok?' — '+esc(cr.date):'')+'</span></label></div>';
+  h+='<div class="card"><h2>오류 신고</h2><p class="small muted">잘못된 정보나 어색한 번역을 적어 두세요. 서버로 보내지 않고 이 기기에 저장돼요. 텍스트 파일로 내려받아 보고하세요.</p>'+
+    '<div class="row"><button class="btn pri" data-act="report" data-area="기타">＋ 오류 신고 쓰기</button><button class="btn" data-act="dlReports"'+(reps.length?'':' disabled')+'>⬇ 텍스트 파일 내려받기</button><button class="btn" data-act="clearReports"'+(reps.length?'':' disabled')+'>목록 비우기</button></div>';
+  if(reps.length)h+='<div class="tblwrap"><table class="tbl" style="margin-top:12px"><thead><tr><th>날짜</th><th>화면</th><th>내용</th></tr></thead><tbody>'+reps.slice().reverse().map(function(r){return '<tr><td>'+esc(fmtDate(r.ts)+' '+fmtTime(r.ts))+'</td><td>'+esc(r.area)+'</td><td style="white-space:pre-wrap">'+esc(r.text)+'</td></tr>';}).join('')+'</tbody></table></div>';
+  h+='</div><div class="card"><h2>자료 출처</h2><ul class="small"><li>'+esc(SRC_G)+'</li><li>'+esc(SRC_M)+'</li><li>'+esc(SRC_I)+'</li><li>2020 한국 심폐소생술 가이드라인(질병관리청·대한심폐소생협회) — 위 가이드라인 재인용, 개정 여부 정기 확인</li><li>자살예방상담전화 109 (보건복지부, 2024.1. 통합 운영)</li></ul><p class="small muted">자료 대조일: '+CHECK_DATE+' · 앱 저장 상태: '+(store.ok?'이 기기에 저장 중':'<b style="color:var(--red)">저장 불가(임시 메모리)</b>')+'</p></div>';
+  return h;
+}
+
+/* --- 업무대행자 --- */
+function renderAgent(){
+  var h='<div class="alert amber" style="font-size:19px"><b>업무대행자 화면 — 기본 처치까지만 안내합니다.</b><ul class="small" style="margin-bottom:0">'+AGENT_NOTE.map(function(x){return '<li>'+esc(x)+'</li>';}).join('')+'</ul><span class="small">출처: '+esc(SRC_M)+' 보건교사 부재 시 안내문(p.128)</span></div>';
+  var list=cases().filter(function(c){return !c.t.saved;});
+  if(!state.tid||!getCase(state.tid)){var dn=list.filter(function(c){return c.done;});state.tid=dn.length?dn[dn.length-1].id:(list.length?list[list.length-1].id:null);}
+  h+='<div class="pending">'+list.map(function(c){var on=c.id===state.tid;return '<button class="btn sm" aria-pressed="'+on+'" data-act="pickCase" data-id="'+c.id+'">'+(c.emerg.length?'🚨 ':'')+esc((gcLabel(c)?gcLabel(c)+' · ':'')+fmtTime(c.created)+' · '+(c.syms.length?c.syms.map(function(s){return symById(s).k;}).slice(0,2).join(','):(c.done?'증상 미선택':'작성 중')))+'</button>';}).join('')+'<button class="btn sm" data-act="manualCase">＋ 학생 문진 없이 시작</button></div>';
+  var c=getCase(state.tid);
+  if(!c)return h+'<div class="card"><p>확인할 문진이 없어요. 학생이 문진을 하거나 [＋ 학생 문진 없이 시작]을 누르세요.</p></div>';
+  var s=cardOpen('asum','','학생 응답',esc(sumBadge(c)),false)+gcFields(c,'a')+'<table class="sumtbl">';
+  s+='<tr><th>응급 징후</th><td>'+(c.emerg.length?'<span class="tag red">'+esc(c.emerg.map(function(e){return findBy(EMERG,e).k;}).join(', '))+'</span>':'없음')+'</td></tr>';
+  s+='<tr><th>아픈 곳</th><td>'+(esc(c.parts.map(partKo).join(', '))||'—')+'</td></tr>'+(stypeOf(c).length?'<tr><th>복통 양상</th><td>'+esc(stypeOf(c).map(function(x){return findBy(STYPE,x).k;}).join(', '))+'</td></tr>':'')+'<tr><th>아픈 정도</th><td>'+(painVal(c)!==null?'<b>'+esc(painText(painVal(c)))+'</b>'+gaugeHTML(painVal(c),false):'—')+'</td></tr><tr><th>시작</th><td>'+(c.when?esc(findBy(WHEN,c.when).k):'—')+'</td></tr><tr><th>병원 진료</th><td>'+esc(hospText(c))+'</td></tr><tr><th>복용 중인 약</th><td>'+(medOf(c).length?esc(medOf(c).map(function(x){return findBy(MEDQ,x).k;}).join(', ')):'—')+'</td></tr></table>';
+  s+='<p style="margin:12px 0 4px"><b>증상 고르기</b></p><div class="chips">'+symOrdered().map(function(x){var on=c.syms.indexOf(x.id)>=0;return '<button class="btn sm" aria-pressed="'+on+'" style="'+(on?'background:var(--pri);color:#fff;border-color:var(--pri)':'')+'" data-act="tSym" data-id="'+x.id+'">'+x.em+' '+esc(x.k)+'</button>';}).join('')+'</div></div>';
+  if(has2(medOf(c),'today')||has2(medOf(c),'daily'))s+='<div class="alert amber" style="margin:0 0 18px">학생이 약을 먹고 있다고 답했어요. 업무대행자는 투약하지 않고, 보건교사·보호자에게 인계하세요.</div>';
+  h+=foldBar(FOLD_IDS_A)+'<div class="toprow"><div>'+s+'</div><div>'+tCare(c,true)+'</div></div><div class="below">'+tEmergency(c,true)+
+    '<div class="card"><h2>보건교사에게 인계</h2><p>이 문진은 저장되어 있어요. 보건교사가 돌아오면 [보건교사] 화면에서 확인하고 [확인 완료]를 눌러 기록 보관함에 저장합니다.</p><button class="btn" data-act="goHome">처음 화면으로</button></div></div>';
+  return h;
+}
+
+/* ---------- 이벤트 ---------- */
+var NAV_ACTS={startStudent:1,stuNext:1,stuBack:1,emergNone:1,setLang:1,openTeacher:1,openAgent:1,goHome:1,saveLog:1,finishCase:1,manualCase:1,pinCheck:1,pinSetup:1,resume:1,printLetter:1,csv:1};
+document.addEventListener('click',function(e){
+  var el=e.target.closest('[data-act]');if(!el)return;
+  if(el.disabled)return;
+  var act=el.getAttribute('data-act');
+  if(act==='modalBg'){if(e.target===el)closeModal();return;}
+  var now=Date.now();
+  if(NAV_ACTS[act]){if(now-state.lastAct<320)return;state.lastAct=now;}
+  try{handle(act,el);}catch(err){if(window.console)console.warn('보듬이:',err);toast('처리 중 문제가 생겼어요. 다시 눌러 주세요.');}
+});
+document.addEventListener('keydown',function(e){
+  state.lastInput=Date.now();
+  if(e.key==='Escape'&&$('#modalRoot').innerHTML){closeModal();return;}
+  var t=e.target;
+  if((e.key==='Enter'||e.key===' ')&&t&&t.getAttribute&&t.getAttribute('role')==='button'&&t.tagName!=='BUTTON'){e.preventDefault();t.dispatchEvent(new MouseEvent('click',{bubbles:true}));}
+  if(e.key==='Enter'&&t&&t.classList&&t.classList.contains('pinin')){var b=$('#modalRoot [data-act="pinCheck"], #modalRoot [data-act="pinSetup"]');if(b){e.preventDefault();b.click();}}
+});
+['pointerdown','touchstart'].forEach(function(ev){document.addEventListener(ev,function(){state.lastInput=Date.now();},{passive:true});});
+document.addEventListener('change',function(e){
+  var el=e.target,k=el.getAttribute&&el.getAttribute('data-chg');if(!k)return;
+  var c=getCase(state.tid);
+  if(k==='review'){var rv=store.get('review',{});rv[el.getAttribute('data-l')]={ok:el.checked,date:el.checked?fmtDate(Date.now()):''};store.set('review',rv);state.keepScroll=true;render();return;}
+  if(k==='contentReview'){store.set('contentReview',{ok:el.checked,date:el.checked?fmtDate(Date.now()):''});state.keepScroll=true;render();return;}
+  if(!c)return;var t=c.t;
+  if(k==='ge'){var id=el.getAttribute('data-id');t.g=t.g.filter(function(x){return x!==id;});if(el.checked)t.g.push(id);}
+  else if(k==='ck'){var s=el.getAttribute('data-s'),key=el.getAttribute('data-k');var a=(t.ck[s]||[]).filter(function(x){return x!==key;});if(el.checked)a.push(key);t.ck[s]=a;}
+  else if(k==='temp'){var v=String(el.value).trim();if(v===''){t.temp='';}else{var n=parseFloat(v);if(isNaN(n)||n<30||n>45){toast('체온은 30~45 사이 숫자로 적어 주세요.');t.temp='';}else t.temp=String(Math.round(n*10)/10);}}
+  else if(k==='act'){var aid=el.getAttribute('data-id');t.acts=t.acts.filter(function(x){return x!==aid;});if(el.checked)t.acts.push(aid);}
+  else if(k==='ll'){t.ll=el.value;}
+  else if(k==='reported'){t.reported=el.checked;}
+  else if(k==='gc'){var f=el.getAttribute('data-f'),v=String(el.value);if(v&&!/^[0-9]{1,2}$/.test(v))v='';t[f]=v;}
+  else if(k==='tf'){t[el.getAttribute('data-f')]=String(el.value).trim();putCase(c);return;}
+  putCase(c);state.keepScroll=true;render();
+});
+
+function curStu(){return getCase(state.sid);}
+function stuSave(c){state.hint='';putCase(c);render();}
+function handle(act,el){
+  var id=el.getAttribute('data-id'),c;
+  switch(act){
+  case 'modalClose':closeModal();break;
+  case 'modalOk':var cb=modalOnOk;closeModal();if(cb)cb();break;
+  case 'goHome':lockIfNeeded(true);goHome();break;
+  case 'lock':state.auth=null;goHome();toast('화면을 잠갔어요.');break;
+  case 'startStudent':
+    c=newCase(true);putCase(c);state.sid=c.id;state.view='student';state.auth=null;state.bodyView='front';state.hint='';render();break;
+  case 'resume':state.sid=id;state.view='student';state.hint='';render();break;
+  case 'discardResume':confirmBox('하던 문진 지우기','이 문진을 지우고 처음 화면으로 돌아갈까요?','지우기',true,function(){delCase(id);render();});break;
+  case 'setLang':c=curStu();if(!c)return;c.lang=el.getAttribute('data-l');c.step='emerg';stuSave(c);break;
+  case 'say':c=curStu();if(!c)return;speak(stuSpeakText(c,el.getAttribute('data-k')),c.lang);break;
+  case 'tglEmerg':c=curStu();var ix=c.emerg.indexOf(id);if(ix>=0)c.emerg.splice(ix,1);else c.emerg.push(id);state.keepScroll=true;stuSave(c);break;
+  case 'emergNone':c=curStu();c.emerg=[];c.step='gc';stuSave(c);break;
+  case 'bodyView':state.bodyView=el.getAttribute('data-v');state.keepScroll=true;render();break;
+  case 'part':c=curStu();var pi=c.parts.indexOf(id);if(pi>=0)c.parts.splice(pi,1);else c.parts.push(id);if(c.parts.length)c.unsure=false;state.keepScroll=true;stuSave(c);
+    var pe=document.querySelector('[data-act="part"][data-id="'+id+'"]');if(pe){try{pe.focus({preventScroll:true});}catch(e){}}break;
+  case 'tglUnsure':c=curStu();c.unsure=!c.unsure;if(c.unsure)c.parts=[];state.keepScroll=true;stuSave(c);break;
+  case 'tglSym':c=curStu();var si=c.syms.indexOf(id);if(si>=0)c.syms.splice(si,1);else c.syms.push(id);if(c.syms.indexOf('stomach')<0)c.stype=[];if(!needsPain(c)){c.pain=null;c.ps=10;}state.keepScroll=true;stuSave(c);break;
+  case 'tglStype':c=curStu();if(!c.stype)c.stype=[];var sti=c.stype.indexOf(id);
+    if(sti>=0)c.stype.splice(sti,1);else{if(id==='unsure')c.stype=[];else c.stype=c.stype.filter(function(x){return x!=='unsure';});c.stype.push(id);}
+    state.keepScroll=true;stuSave(c);break;
+  case 'stuGc':c=curStu();c.t[el.getAttribute('data-f')]=el.getAttribute('data-n');state.keepScroll=true;stuSave(c);break;
+  case 'tglMed':c=curStu();if(!c.med)c.med=[];var mi=c.med.indexOf(id);
+    if(mi>=0)c.med.splice(mi,1);else{if(id==='none'||id==='unsure')c.med=[];else c.med=c.med.filter(function(x){return x!=='none'&&x!=='unsure';});c.med.push(id);}
+    state.keepScroll=true;stuSave(c);break;
+  case 'setPain':c=curStu();c.pain=+el.getAttribute('data-n');c.ps=10;state.keepScroll=true;stuSave(c);break;
+  case 'setOne':c=curStu();c[el.getAttribute('data-f')]=id;if(el.getAttribute('data-f')==='when'&&!needsHosp(c))c.hosp='';state.keepScroll=true;stuSave(c);break;
+  case 'stuBack':c=curStu();var SB=stepsFor(c),bi=SB.indexOf(c.step);c.step=bi<=0?'lang':SB[bi-1];stuSave(c);break;
+  case 'stuNext':stuNext();break;
+  case 'openTeacher':askPin('teacher');break;
+  case 'openAgent':askPin('agent');break;
+  case 'pinSetup':pinSetup(el.getAttribute('data-role'));break;
+  case 'pinCheck':pinCheck(el.getAttribute('data-role'));break;
+  case 'tab':state.tab=el.getAttribute('data-t');render();break;
+  case 'pickCase':state.tid=id;render();break;
+  case 'manualCase':c=newCase(false);putCase(c);state.tid=c.id;render();toast('새 기록을 시작했어요. 증상을 골라 주세요.');break;
+  case 'delCase':confirmBox('문진 지우기','이 문진을 지울까요? 지우면 되돌릴 수 없어요.','지우기',true,function(){delCase(state.tid);render();});break;
+  case 'tSym':c=getCase(state.tid);if(!c)return;var ti=c.syms.indexOf(id);if(ti>=0)c.syms.splice(ti,1);else c.syms.push(id);putCase(c);state.keepScroll=true;render();break;
+  case 'setSev':c=getCase(state.tid);c.t.sev=+el.getAttribute('data-n');if(c.t.sev===1&&c.t.acts.indexOf('119')<0){}putCase(c);state.keepScroll=true;render();break;
+  case 'unlockLetter':c=getCase(state.tid);if(!c.t.reported){toast('관리자 보고 확인에 먼저 표시해 주세요.');return;}
+    confirmBox('안내문 열기','관리자 보고 후 보호자 안내가 적절하다고 판단했나요? ','네, 열기',false,function(){var cc=getCase(state.tid);cc.t.unlock=true;putCase(cc);state.keepScroll=true;render();});break;
+  case 'printLetter':printLetter();break;
+  case 'copyLetter':copyLetter();break;
+  case 'saveLog':saveLog();break;
+  case 'finishCase2':confirmBox('확인 완료','이 문진을 <b>기록 보관함(이 기기)</b>에 저장하고 대기 목록에서 정리할까요?','저장하고 정리',false,function(){var cc=getCase(state.tid);if(!cc)return;
+      var rs=records();if(!rs.some(function(x){return x.id===cc.id;})){var rec=JSON.parse(JSON.stringify(cc));rec.done=Date.now();rs.push(rec);if(rs.length>REC_MAX){toast('기록이 '+REC_MAX+'건을 넘었어요. CSV로 내려받은 뒤 오래된 기록을 지워 주세요.');}if(!store.set('records',rs))return;}
+      delCase(cc.id);state.tid=null;render();toast('기록 보관함에 저장했어요. 다음 학생을 받을 수 있어요.');});break;
+  case 'recView':var rv0=null;records().forEach(function(x){if(x.id===id)rv0=x;});if(rv0)openModal(recDetail(rv0));break;
+  case 'recDel':confirmBox('기록 삭제','이 기록 1건을 지울까요? 되돌릴 수 없어요.','삭제',true,function(){store.set('records',records().filter(function(x){return x.id!==id;}));state.keepScroll=true;render();toast('기록을 지웠어요.');});break;
+  case 'fold':var fs=foldedSet(),sec=el.getAttribute('data-sec'),fi=fs.indexOf(sec);if(fi>=0)fs.splice(fi,1);else fs.push(sec);saveFold(fs);state.keepScroll=true;render();break;
+  case 'foldAll':var ids=el.getAttribute('data-ids').split(','),fs2=foldedSet().filter(function(x){return ids.indexOf(x)<0;});if(el.getAttribute('data-v')==='1')fs2=fs2.concat(ids);saveFold(fs2);state.keepScroll=true;render();break;
+  case 'finishCase':delCase(state.tid);state.tid=null;render();toast('정리했어요. 다음 학생을 받을 수 있어요.');break;
+  case 'period':state.statPeriod=el.getAttribute('data-p');render();break;
+  case 'csv':confirmBox('CSV 내려받기','<div class="alert amber">이 파일에는 <b>학년·반</b>과 건강 정보가 들어 있어요. 학교 업무용 기기에만 저장하고, 메신저·메일로 학교 밖에 보내지 마세요. 사용 후에는 지워 주세요.</div>','알겠어요, 내려받기',false,downloadCSV);break;
+  case 'wipeLogs':openModal('<h2>기록 전체 삭제</h2><p>보관된 기록 '+records().length+'건이 모두 지워지고 되돌릴 수 없어요. 먼저 CSV로 내려받았는지 확인하세요.</p><div class="field"><label for="wipeIn">계속하려면 <b>삭제</b>라고 적어 주세요</label><input id="wipeIn" type="text" autocomplete="off"></div><div class="row end" style="margin-top:14px"><button class="btn" data-act="modalClose">취소</button><button class="btn red" data-act="wipeConfirm">모두 삭제</button></div>');break;
+  case 'wipeConfirm':if(($('#wipeIn')||{}).value!=='삭제'){toast('"삭제"라고 정확히 적어 주세요.');return;}store.set('records',[]);closeModal();render();toast('기록을 모두 지웠어요.');break;
+  case 'saveSchool':var s=settings();s.school=String(($('#aSchool')||{}).value||'').trim().slice(0,30);s.classes=parseInt(($('#aClasses')||{}).value,10)||10;store.set('settings',s);toast('학교 정보를 저장했어요.');state.keepScroll=true;render();break;
+  case 'savePins':savePins();break;
+  case 'clearAgentPin':confirmBox('대행자 PIN 지우기','업무대행자 PIN을 지우면 보건교사 PIN으로만 대행자 화면을 열 수 있어요.','지우기',true,function(){var s2=settings();s2.pinA='';store.set('settings',s2);render();toast('대행자 PIN을 지웠어요.');});break;
+  case 'report':openReport(el.getAttribute('data-area')||'기타');break;
+  case 'saveReport':saveReport();break;
+  case 'dlReports':downloadReports();break;
+  case 'clearReports':confirmBox('오류 신고 목록 비우기','내려받았는지 확인하셨나요? 목록을 비울까요?','비우기',true,function(){store.set('reports',[]);render();});break;
+  }
+}
+function goHome(){state.view='home';state.sid=null;state.hint='';if(hasSpeech()){try{window.speechSynthesis.cancel();}catch(e){}}render();}
+function lockIfNeeded(){state.auth=null;}
+function stuNext(){
+  var c=curStu();if(!c)return;var tt=T[c.lang];
+  var need={emerg:false,gc:!(c.t.grade&&c.t.cls),body:!(c.parts.length||c.unsure),sym:!c.syms.length,stype:!stypeOf(c).length,pain:painVal(c)===null,when:!c.when,cause:!c.cause,hosp:!c.hosp,med:!medOf(c).length}[c.step];
+  if(need){state.hint=(c.step==='body'||c.step==='sym'||c.step==='stype'||c.step==='med')?tt.pickOne:(c.step==='gc'?tt.qGc:tt.pickOneSingle);state.keepScroll=true;render();return;}
+  if(c.step==='emerg'&&c.emerg.length){c.step='stop';c.done=true;stuSave(c);return;}
+  var STEPS=stepsFor(c),i=STEPS.indexOf(c.step);
+  if(i===STEPS.length-1){c.step='done';c.done=true;}else c.step=STEPS[i+1];
+  stuSave(c);
+}
+function pinSetup(role){
+  var a=($('#p1')||{}).value,b=($('#p2')||{}).value,ag=($('#p3')||{}).value||'',msg=$('#pinMsg');
+  if(!validPin(a)){msg.textContent='보건교사 PIN은 숫자 4자리로 적어 주세요.';return;}
+  if(a!==b){msg.textContent='두 번 입력한 PIN이 달라요.';return;}
+  if(ag&&!validPin(ag)){msg.textContent='업무대행자 PIN도 숫자 4자리로 적어 주세요.';return;}
+  if(ag&&ag===a){msg.textContent='업무대행자 PIN은 보건교사 PIN과 다르게 정해 주세요.';return;}
+  var s=settings();s.pinT=hashPin(a);s.pinA=ag?hashPin(ag):'';store.set('settings',s);closeModal();openView(role);toast('PIN을 정했어요. 잊지 않도록 따로 적어 두세요.');
+}
+function pinCheck(role){
+  var msg=$('#pinMsg'),p=($('#pin')||{}).value||'',s=settings();
+  if(Date.now()<pinFail.until){msg.textContent='여러 번 틀렸어요. '+Math.ceil((pinFail.until-Date.now())/1000)+'초 뒤에 다시 해 주세요.';return;}
+  if(!validPin(p)){msg.textContent='숫자 4자리를 적어 주세요.';return;}
+  var hp=hashPin(p),ok=false,as=role;
+  if(hp===s.pinT){ok=true;}else if(role==='agent'&&s.pinA&&hp===s.pinA){ok=true;}
+  if(role==='teacher'&&hp!==s.pinT)ok=false;
+  if(!ok){pinFail.n++;if(pinFail.n>=5){pinFail.until=Date.now()+30000;pinFail.n=0;}msg.textContent='PIN이 맞지 않아요.';$('#pin').value='';$('#pin').focus();return;}
+  pinFail.n=0;closeModal();openView(as);
+}
+function openView(role){
+  state.auth=role;state.view=role;state.tab='case';
+  var c=state.sid&&getCase(state.sid);if(c)state.tid=c.id;state.sid=null;
+  if(hasSpeech()){try{window.speechSynthesis.cancel();}catch(e){}}
+  render();
+}
+function savePins(){
+  var s=settings(),o=$('#aOld').value,nt=$('#aNewT').value,na=$('#aNewA').value;
+  if(hashPin(o)!==s.pinT){toast('지금 보건교사 PIN이 맞지 않아요.');return;}
+  if(!nt&&!na){toast('바꿀 PIN을 적어 주세요.');return;}
+  if(nt&&!validPin(nt)){toast('새 보건교사 PIN은 숫자 4자리로 적어 주세요.');return;}
+  if(na&&!validPin(na)){toast('업무대행자 PIN은 숫자 4자리로 적어 주세요.');return;}
+  var finalT=nt||o;if(na&&na===finalT){toast('업무대행자 PIN은 보건교사 PIN과 달라야 해요.');return;}
+  if(nt)s.pinT=hashPin(nt);if(na)s.pinA=hashPin(na);store.set('settings',s);state.keepScroll=true;render();toast('PIN을 저장했어요.');
+}
+function saveLog(){
+  var c=getCase(state.tid);if(!c)return;var t=c.t;
+  if(t.saved){toast('이미 저장했어요.');return;}
+  var g=parseInt(t.grade,10),cl=parseInt(t.cls,10),no=parseInt(t.no,10);
+  if(!(g>=1&&g<=6)){toast('학년을 골라 주세요.');return;}
+  if(!(cl>=1&&cl<=30)){toast('반은 1~30 사이 숫자로 적어 주세요.');return;}
+  if(!(no>=1&&no<=50)){toast('번호는 1~50 사이 숫자로 적어 주세요.');return;}
+  if(!c.syms.length){toast('증상을 하나 이상 골라 주세요.');return;}
+  if(!t.sev){toast('③ 중증도 최종 판단을 먼저 골라 주세요.');return;}
+  var L_=logs();if(L_.some(function(r){return r.id===c.id;})){t.saved=true;putCase(c);render();toast('이미 저장된 기록이에요.');return;}
+  L_.push({id:c.id,ts:c.created,g:String(g),cl:String(cl),no:String(no),parts:c.parts.map(partKo),syms:c.syms.slice(),stype:stypeOf(c).slice(),pain10:painVal(c),hosp:c.hosp,med:medOf(c).slice(),when:c.when,sev:t.sev,acts:t.acts.slice(),emerg:!!(c.emerg.length||t.g.length),protect:isProtect(c),unlock:!!t.unlock});
+  if(!store.set('logs',L_))return;
+  t.saved=true;putCase(c);state.keepScroll=true;render();toast('보건일지에 저장했어요.');
+}
+function csvCell(v){var s=String(v==null?'':v);if(/^[=+\-@\t\r]/.test(s))s="'"+s;return '"'+s.replace(/"/g,'""')+'"';}
+function downloadBlob(name,text,type){
+  try{var blob=new Blob([text],{type:type});var url=URL.createObjectURL(blob);var a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();setTimeout(function(){document.body.removeChild(a);URL.revokeObjectURL(url);},500);toast('파일을 내려받았어요.');}
+  catch(e){toast('이 환경에서는 내려받기가 안 돼요.');}
+}
+function downloadCSV(){
+  var rows=[['문진 날짜','문진 시각','확인 완료','학년','반','문진 언어','응급 징후(학생)','응급 징후(교사 확인)','아픈 곳','증상','복통 양상','아픈 정도(0~10)','시작','원인','병원 진료','복용 중인 약','체온','응급 체크','긴급 체크','추천 단계','최종 중증도','학교 조치','보호 필요','안내문 열람 판단']];
+  records().forEach(function(r){var pv=painVal(r),rc=recommend(r);
+    rows.push([fmtDate(r.created),fmtTime(r.created),r.done?fmtDate(r.done)+' '+fmtTime(r.done):'',r.t.grade||'',r.t.cls||'',r.student?langInfo(r.lang).kname:'교사 직접 기록',
+      r.emerg.map(function(e){return findBy(EMERG,e).k;}).join(' / '),r.t.g.map(function(g){return findBy(GE,g).k;}).join(' / '),
+      r.parts.map(partKo).join(' / '),r.syms.map(function(x){return symById(x)?symById(x).k:x;}).join(' / '),stypeOf(r).map(function(x){return findBy(STYPE,x).k;}).join(' / '),
+      pv===null?'':pv,r.when?findBy(WHEN,r.when).k:'',r.cause?findBy(CAUSE,r.cause).k:'',hospText(r),medOf(r).map(function(x){return findBy(MEDQ,x).k;}).join(' / '),r.t.temp||'',
+      ckList(r,'E').join(' / '),ckList(r,'U').join(' / '),rc.basis?rc.lvl:'',r.t.sev?r.t.sev+'단계 '+SEV[r.t.sev].n:'',
+      r.t.acts.map(function(a){return findBy(ACTS,a).ko.replace(/\.$/,'');}).join(' / '),isProtect(r)?'예':'',r.t.unlock?'관리자 보고 후 열람':'']);});
+  var csv='﻿'+rows.map(function(r){return r.map(csvCell).join(',');}).join('\r\n');
+  downloadBlob('보듬이_기록_'+fmtDate(Date.now())+'.csv',csv,'text/csv;charset=utf-8');
+}
+function printLetter(){
+  var c=getCase(state.tid);if(!c||!c.syms.length)return;if(isProtect(c)&&!c.t.unlock){toast('보호 필요 학생은 안내문이 잠겨 있어요.');return;}
+  var ll=letterLang(c),s=settings();
+  $('#printArea').innerHTML='<div class="letter '+(ll?'':'one')+'">'+letterHTML(c,'ko',c.t.acts,s.school)+(ll?letterHTML(c,ll,c.t.acts,s.school):'')+'</div>';
+  try{window.print();}catch(e){toast('이 환경에서는 인쇄가 안 돼요. [글 복사하기]를 써 주세요.');}
+}
+function copyLetter(){
+  var c=getCase(state.tid);if(!c||!c.syms.length)return;if(isProtect(c)&&!c.t.unlock){toast('보호 필요 학생은 안내문이 잠겨 있어요.');return;}
+  var ll=letterLang(c),s=settings(),txt=letterText(c,'ko',c.t.acts,s.school)+(ll?'\n\n────────\n\n'+letterText(c,ll,c.t.acts,s.school):'');
+  var done=function(){toast('안내문 글을 복사했어요. 알림앱에 붙여 넣으세요.');};
+  var fallback=function(){var ta=document.createElement('textarea');ta.value=txt;ta.setAttribute('readonly','');ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();var ok=false;try{ok=document.execCommand('copy');}catch(e){}document.body.removeChild(ta);if(ok)done();else toast('복사가 안 되는 환경이에요. 인쇄를 이용해 주세요.');};
+  if(navigator.clipboard&&window.isSecureContext){navigator.clipboard.writeText(txt).then(done,fallback);}else fallback();
+}
+function openReport(area){
+  openModal('<h2>⚑ 오류 신고</h2><div class="field"><label for="rArea">어느 부분인가요?</label><input id="rArea" type="text" maxlength="60" value="'+esc(area)+'"></div>'+
+   '<div class="field" style="margin-top:10px"><label for="rText">무엇이 잘못되었나요? (학생 이름 등 개인정보는 적지 마세요)</label><textarea id="rText" maxlength="500"></textarea></div>'+
+   '<div class="row end" style="margin-top:14px"><button class="btn" data-act="modalClose">취소</button><button class="btn pri" data-act="saveReport">저장</button></div>');
+  var tx=$('#rText');if(tx)tx.focus();
+}
+function saveReport(){
+  var area=String(($('#rArea')||{}).value||'').trim().slice(0,60),text=String(($('#rText')||{}).value||'').trim().slice(0,500);
+  if(!text){toast('내용을 적어 주세요.');return;}
+  var r=store.get('reports',[]);r.push({ts:Date.now(),area:area||'기타',text:text});store.set('reports',r);closeModal();state.keepScroll=true;render();toast('오류 신고를 저장했어요. [관리]에서 내려받을 수 있어요.');
+}
+function downloadReports(){var r=store.get('reports',[]);if(!r.length)return;
+  var txt='보듬이 오류 신고 목록 ('+fmtDate(Date.now())+')\r\n\r\n'+r.map(function(x,i){return (i+1)+'. ['+fmtDate(x.ts)+' '+fmtTime(x.ts)+'] '+x.area+'\r\n   '+x.text.replace(/\n/g,'\r\n   ');}).join('\r\n\r\n');
+  downloadBlob('보듬이_오류신고_'+fmtDate(Date.now())+'.txt','﻿'+txt,'text/plain;charset=utf-8');}
+
+/* 10분 동안 조작이 없으면 교사·대행자 화면 자동 잠금 */
+setInterval(function(){if(state.auth&&Date.now()-state.lastInput>10*60*1000){state.auth=null;closeModal();goHome();toast('10분 동안 사용하지 않아 화면을 잠갔어요.');}},20000);
+
+/* 시작 */
+(function init(){
+  if(!store.ok)$('#storeBanner').hidden=false;
+  render();
+})();
+</script>
+</body>
+</html>
